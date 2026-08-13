@@ -1,0 +1,68 @@
+{% extends "notices/base.html" %}
+{% block title %}Community Notices — CommuNotice{% endblock %}
+{% block content %}
+    <div class="list-header">
+        <div>
+            <h1 class="page-title">Community Notices</h1>
+            <p class="subtitle">Lost & found, local events, alerts, and services shared by your community.</p>
+        </div>
+        {% if user.is_authenticated %}
+            <a href="{% url 'notices:create' %}" class="btn">+ Post a notice</a>
+        {% else %}
+            <a href="{% url 'register' %}" class="btn">Join to post a notice</a>
+        {% endif %}
+    </div>
+
+    <div class="filter-bar">
+        <a href="{% url 'notices:list' %}" class="chip {% if not selected_category %}chip-active{% endif %}">All</a>
+        {% for cat in categories %}
+            <a href="?category={{ cat.id }}" class="chip {% if selected_category == cat.id %}chip-active{% endif %}">{{ cat.name }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="notice-grid">
+        {% for notice in page_obj %}
+            <a class="notice-card" href="{% url 'notices:detail' notice.pk %}">
+                {% if notice.image %}
+                    <img class="thumb" src="{{ notice.image.url }}" alt="{{ notice.title }}">
+                {% else %}
+                    <div class="thumb-placeholder">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <span class="category-tag">{{ notice.category.name }}</span>
+                    <h2>{{ notice.title }}</h2>
+                    <p>{{ notice.description|truncatewords:18 }}</p>
+                    <div class="meta">
+                        <span>{{ notice.posted_by.username }}</span>
+                        <span>&middot;</span>
+                        <span>{{ notice.created_at|timesince }} ago</span>
+                    </div>
+                </div>
+                {% if notice.is_resolved %}<span class="badge">Resolved</span>{% endif %}
+            </a>
+        {% empty %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <p>No notices yet. Be the first to post one!</p>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'notices:create' %}" class="btn btn-small">+ Post a notice</a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-small">Sign up to post</a>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&laquo; Prev</a>
+        {% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endblock %}

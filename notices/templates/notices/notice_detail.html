@@ -1,0 +1,19 @@
+{% extends "notices/base.html" %}
+{% block title %}{{ notice.title }} — CommuNotice{% endblock %}
+{% block content %}
+    <a class="back-link" href="{% url 'notices:list' %}">&larr; Back to all notices</a>
+    <article class="notice-detail">
+        {% if notice.image %}
+            <img class="detail-photo" src="{{ notice.image.url }}" alt="{{ notice.title }}">
+        {% endif %}
+        <div class="detail-body">
+            <span class="category-tag">{{ notice.category.name }}</span>
+            {% if notice.is_resolved %}<span class="badge" style="position:static; margin-left:8px;">Resolved</span>{% endif %}
+            <h1 class="page-title">{{ notice.title }}</h1>
+            <div class="meta">
+                Posted by <strong>{{ notice.posted_by.username }}</strong> &middot; {{ notice.created_at|date:"d M Y, H:i" }}
+            </div>
+            <p class="description">{{ notice.description|linebreaks }}</p>
+        </div>
+    </article>
+{% endblock %}

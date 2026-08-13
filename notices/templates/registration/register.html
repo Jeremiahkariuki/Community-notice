@@ -1,0 +1,17 @@
+{% extends "notices/base.html" %}
+{% block title %}Sign Up — CommuNotice{% endblock %}
+{% block content %}
+    <div class="form-card">
+        <div class="auth-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+        </div>
+        <h1 class="form-title">Join Our Community</h1>
+        <p class="form-subtitle">Create a free account to post notices and stay connected.</p>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-block">Sign Up</button>
+        </form>
+        <p class="form-foot">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+    </div>
+{% endblock %}

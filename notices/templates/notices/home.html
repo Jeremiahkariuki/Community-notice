@@ -1,0 +1,275 @@
+{% extends "notices/base.html" %}
+{% block title %}CommuNotice — Stay Informed. Stay Connected.{% endblock %}
+
+{% block body %}
+<section class="hero">
+    <div class="wrap">
+        <div class="hero-copy">
+            <h1>Stay Informed.<span class="accent">Stay Connected.</span></h1>
+            <p class="lead">CommuNotice helps our community stay updated with important announcements, events, and alerts — all in one place.</p>
+            <div class="hero-cta">
+                <a href="{% url 'notices:list' %}" class="btn">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    View Notices
+                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'notices:create' %}" class="btn btn-outline">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                        Post a Notice
+                    </a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-outline">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                        Join Our Community
+                    </a>
+                {% endif %}
+            </div>
+            <div class="trust-row">
+                <span class="avatar-stack">
+                    <span style="background:#2f6fed;">A</span>
+                    <span style="background:#f2a93b;">B</span>
+                    <span style="background:#1c7a3e;">C</span>
+                    <span style="background:#7c5cff;">D</span>
+                </span>
+                Trusted by {{ member_count }}+ community members
+            </div>
+        </div>
+
+        <div class="hero-art">
+            <svg class="scene" viewBox="0 0 500 420" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <rect width="500" height="420" fill="url(#skyGrad)"/>
+                <defs>
+                    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#cdeedd"/>
+                        <stop offset="1" stop-color="#8fd3ac"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="410" cy="70" r="46" fill="#fff2c4"/>
+                <g opacity="0.55" fill="#5fb987">
+                    <circle cx="60" cy="330" r="60"/>
+                    <circle cx="140" cy="360" r="42"/>
+                    <circle cx="440" cy="340" r="70"/>
+                </g>
+                <g>
+                    <rect x="150" y="230" width="130" height="110" rx="6" fill="#f4e3c1"/>
+                    <polygon points="140,235 215,175 290,235" fill="#8a5a3b"/>
+                    <rect x="195" y="280" width="36" height="60" fill="#8a5a3b"/>
+                    <rect x="165" y="250" width="26" height="26" fill="#fff" opacity="0.85"/>
+                    <rect x="240" y="250" width="26" height="26" fill="#fff" opacity="0.85"/>
+                </g>
+                <g opacity="0.9">
+                    <rect x="40" y="260" width="90" height="80" rx="4" fill="#eadfc4"/>
+                    <polygon points="32,264 85,225 138,264" fill="#6f8f5b"/>
+                </g>
+                <g opacity="0.9">
+                    <rect x="340" y="255" width="100" height="85" rx="4" fill="#e7cfae"/>
+                    <polygon points="330,259 390,215 450,259" fill="#6f8f5b"/>
+                </g>
+                <rect x="0" y="380" width="500" height="40" fill="#dff0c8"/>
+            </svg>
+
+            <div class="hero-cards">
+                {% for notice in latest_notices %}
+                    <a class="notice-preview-card" href="{% url 'notices:detail' notice.pk %}">
+                        <span class="icon {% cycle 'icon-green' 'icon-yellow' 'icon-purple' %}">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a2 2 0 1 1-3.2 2.4"/></svg>
+                        </span>
+                        <span>
+                            <h3>{{ notice.title }}</h3>
+                            <p class="when">{{ notice.created_at|date:"M j, Y • g:i A" }}</p>
+                            <p class="snippet">{{ notice.description|truncatewords:10 }}</p>
+                        </span>
+                    </a>
+                {% empty %}
+                    <a class="notice-preview-card" href="{% url 'notices:list' %}">
+                        <span class="icon icon-green">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a2 2 0 1 1-3.2 2.4"/></svg>
+                        </span>
+                        <span>
+                            <h3>Community Meeting</h3>
+                            <p class="when">Sat • 10:00 AM</p>
+                            <p class="snippet">Town hall meeting this Saturday.</p>
+                        </span>
+                    </a>
+                    <a class="notice-preview-card" href="{% url 'notices:list' %}">
+                        <span class="icon icon-yellow">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                        </span>
+                        <span>
+                            <h3>Water Interruption</h3>
+                            <p class="when">Mon • 8:00 AM</p>
+                            <p class="snippet">Water supply will be off 8am–12pm.</p>
+                        </span>
+                    </a>
+                    <a class="notice-preview-card" href="{% url 'notices:list' %}">
+                        <span class="icon icon-purple">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        </span>
+                        <span>
+                            <h3>Youth Football Tournament</h3>
+                            <p class="when">Jun 7 • 9:00 AM</p>
+                            <p class="snippet">Registrations are now open!</p>
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="wrap">
+    <div class="feature-strip">
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+                <div>
+                    <h3>Real-time Updates</h3>
+                    <p>Get instant notifications about important community updates.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <div>
+                    <h3>Community Focused</h3>
+                    <p>Built for communities to connect, inform, and grow together.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></svg></span>
+                <div>
+                    <h3>Trusted Information</h3>
+                    <p>Verified notices from members ensure reliability and trust.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span>
+                <div>
+                    <h3>Accessible Anywhere</h3>
+                    <p>Access notices on any device, anytime, anywhere.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="stats-section">
+    <div class="wrap">
+        <h2>Building a Better Informed Community</h2>
+        <div class="underline"></div>
+        <div class="stats-grid">
+            <div class="stat">
+                <span class="icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <span class="num">{{ member_count }}+</span>
+                <span class="label">Active Members</span>
+                <span class="sub">Growing every day</span>
+            </div>
+            <div class="stat">
+                <span class="icon icon-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a2 2 0 1 1-3.2 2.4"/></svg></span>
+                <span class="num">{{ notice_count }}+</span>
+                <span class="label">Notices Posted</span>
+                <span class="sub">Keeping you informed</span>
+            </div>
+            <div class="stat">
+                <span class="icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                <span class="num">{{ category_count }}+</span>
+                <span class="label">Categories</span>
+                <span class="sub">Organized for you</span>
+            </div>
+            <div class="stat">
+                <span class="icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></svg></span>
+                <span class="num">100%</span>
+                <span class="label">Community Focused</span>
+                <span class="sub">For a better tomorrow</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="how-section" id="how-it-works">
+    <div class="wrap">
+        <h2>How It Works</h2>
+        <div class="underline"></div>
+        <div class="how-grid">
+            <div class="how-step">
+                <span class="step-num">1</span>
+                <h3>Create your account</h3>
+                <p>Sign up in seconds with a username and password to join the community.</p>
+            </div>
+            <div class="how-step">
+                <span class="step-num">2</span>
+                <h3>Post a notice</h3>
+                <p>Share an announcement, alert, or event — add a photo so neighbors know exactly what to expect.</p>
+            </div>
+            <div class="how-step">
+                <span class="step-num">3</span>
+                <h3>Stay in the loop</h3>
+                <p>Browse notices by category, open any notice for full details, and never miss an update.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="split-section alt" id="about">
+    <div class="wrap">
+        <div>
+            <h2>About Us</h2>
+            <p>CommuNotice was built to give neighborhoods a single, trusted place to share what matters — from water interruptions and lost pets to town-hall meetings and youth tournaments.</p>
+            <p>Every notice is posted by a verified community member, so you always know updates are coming from people around you, not a faceless feed.</p>
+            <a href="{% url 'notices:list' %}" class="btn btn-outline">Browse Notices</a>
+        </div>
+        <div class="mini-card">
+            <h3 style="margin-top:0;">Why communities choose us</h3>
+            <ul class="contact-list">
+                <li><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> No spam — only notices from real neighbors</li>
+                <li><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Photos make every notice easy to understand</li>
+                <li><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Organized by category so you find what matters</li>
+                <li><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span> Free to join, free to post</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="split-section" id="contact">
+    <div class="wrap">
+        <div class="mini-card">
+            <h3 style="margin-top:0;">Get in touch</h3>
+            <ul class="contact-list">
+                <li>
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z" opacity="0"/><path d="M22 6 12 13 2 6"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg></span>
+                    hello@communotice.example
+                </li>
+                <li>
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.68 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.32 1.85.55 2.81.68A2 2 0 0 1 22 16.92z"/></svg></span>
+                    0715883594
+                </li>
+                <li>
+                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                    kenol
+                </li>
+            </ul>
+        </div>
+        <div>
+            <h2>We'd love to hear from you</h2>
+            <p>Questions, feedback, or ideas for CommuNotice? Reach out — this community board grows with your input.</p>
+            {% if user.is_authenticated %}
+                <a href="{% url 'notices:create' %}" class="btn">Post a Notice</a>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn">Join Our Community</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<div class="wrap">
+    <div class="cta-banner">
+        <h2>Ready to stay in the loop?</h2>
+        <p>Join {{ member_count }}+ members already using CommuNotice.</p>
+        {% if user.is_authenticated %}
+            <a href="{% url 'notices:list' %}" class="btn">View Notices</a>
+        {% else %}
+            <a href="{% url 'register' %}" class="btn">Sign Up Free</a>
+            <a href="{% url 'login' %}" class="btn btn-outline">Log In</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
