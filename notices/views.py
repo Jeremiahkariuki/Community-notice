@@ -9,7 +9,6 @@ from .forms import NoticeForm, SignUpForm
 
 
 def home(request):
-    """Landing page: hero, live preview of latest notices, features & stats."""
     latest_notices = Notice.objects.select_related("category", "posted_by")[:3]
     context = {
         "latest_notices": latest_notices,
