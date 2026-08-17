@@ -14,6 +14,12 @@
                 Posted by <strong>{{ notice.posted_by.username }}</strong> &middot; {{ notice.created_at|date:"d M Y, H:i" }}
             </div>
             <p class="description">{{ notice.description|linebreaks }}</p>
+            {% if user == notice.posted_by %}
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <a href="{% url 'notices:edit' notice.pk %}" class="btn btn-outline btn-small">Edit</a>
+                    <a href="{% url 'notices:delete' notice.pk %}" class="btn btn-outline btn-small" style="color:#b3261e; border-color:#f3d4d2;">Delete</a>
+                </div>
+            {% endif %}
         </div>
     </article>
 {% endblock %}

@@ -9,6 +9,7 @@ from .forms import NoticeForm, SignUpForm
 
 
 def home(request):
+    """Landing page: hero, live preview of latest notices, features & stats."""
     latest_notices = Notice.objects.select_related("category", "posted_by")[:3]
     context = {
         "latest_notices": latest_notices,
@@ -69,3 +70,52 @@ def notice_create(request):
     else:
         form = NoticeForm()
     return render(request, "notices/notice_form.html", {"form": form})
+
+
+@login_required
+def my_notices(request):
+    notices = Notice.objects.filter(posted_by=request.user).select_related("category")
+    paginator = Paginator(notices, 6)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(request, "notices/my_notices.html", {"page_obj": page_obj})
+
+
+@login_required
+def notice_edit(request, pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    if notice.posted_by != request.user:
+        messages.error(request, "You can only edit notices you posted.")
+        return redirect("notices:detail", pk=notice.pk)
+
+    if request.method == "POST":
+        form = NoticeForm(request.POST, request.FILES, instance=notice)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Notice updated.")
+            return redirect("notices:detail", pk=notice.pk)
+    else:
+        form = NoticeForm(instance=notice)
+    return render(request, "notices/notice_form.html", {"form": form, "editing": True, "notice": notice})
+
+
+@login_required
+def notice_delete(request, pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    if notice.posted_by != request.user:
+        messages.error(request, "You can only delete notices you posted.")
+        return redirect("notices:detail", pk=notice.pk)
+
+    if request.method == "POST":
+        notice.delete()
+        messages.success(request, "Notice deleted.")
+        return redirect("notices:mine")
+    return render(request, "notices/notice_confirm_delete.html", {"notice": notice})
+
+
+@login_required
+def profile(request):
+    context = {
+        "notice_count": Notice.objects.filter(posted_by=request.user).count(),
+        "recent_notices": Notice.objects.filter(posted_by=request.user).select_related("category")[:5],
+    }
+    return render(request, "registration/profile.html", context)
