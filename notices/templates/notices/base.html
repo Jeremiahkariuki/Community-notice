@@ -25,7 +25,8 @@
             </nav>
             <div class="header-actions">
                 {% if user.is_authenticated %}
-                    <span class="hello">Hi, {{ user.first_name|default:user.username }}</span>
+                    <a href="{% url 'profile' %}" class="hello" style="text-decoration:none;">Hi, {{ user.first_name|default:user.username }}</a>
+                    <a href="{% url 'notices:mine' %}" class="btn btn-outline btn-small">My Notices</a>
                     <a href="{% url 'notices:create' %}" class="btn btn-small">+ Post notice</a>
                     <form action="{% url 'logout' %}" method="post" class="inline-form">
                         {% csrf_token %}
@@ -89,7 +90,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">&copy; {% now "Y" %} CommuNotice. Built with Django — a community notice board .</div>
+            <div class="footer-bottom">&copy; {% now "Y" %} CommuNotice. Built with Django — a community notice board demo.</div>
         </div>
     </footer>
 </body>

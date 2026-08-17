@@ -1,0 +1,16 @@
+{% extends "notices/base.html" %}
+{% block title %}Delete notice — CommuNotice{% endblock %}
+{% block content %}
+    <div class="form-card">
+        <div class="auth-icon" style="background:#fdeaea; color:#b3261e;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"/></svg>
+        </div>
+        <h1 class="form-title">Delete this notice?</h1>
+        <p class="form-subtitle">"{{ notice.title }}" will be permanently removed. This can't be undone.</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-block" style="background:#b3261e; border-color:#b3261e;">Yes, delete it</button>
+        </form>
+        <p class="form-foot"><a href="{% url 'notices:detail' notice.pk %}">Cancel, go back</a></p>
+    </div>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "notices/base.html" %}
+{% block title %}My Profile — CommuNotice{% endblock %}
+{% block content %}
+    <h1 class="page-title">My Profile</h1>
+    <p class="subtitle">Account details and your recent activity.</p>
+
+    <div class="form-card" style="text-align:left;">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Name:</strong> {{ user.first_name|default:"—" }}</p>
+        <p><strong>Email:</strong> {{ user.email|default:"—" }}</p>
+        <p><strong>Notices posted:</strong> {{ notice_count }}</p>
+        <a href="{% url 'notices:mine' %}" class="btn btn-block">View My Notices</a>
+    </div>
+{% endblock %}

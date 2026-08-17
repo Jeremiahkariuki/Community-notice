@@ -1,16 +1,16 @@
 {% extends "notices/base.html" %}
-{% block title %}Post a notice — CommuNotice{% endblock %}
+{% block title %}{% if editing %}Edit notice{% else %}Post a notice{% endif %} — CommuNotice{% endblock %}
 {% block content %}
     <div class="form-card">
         <div class="auth-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a2 2 0 1 1-3.2 2.4"/></svg>
         </div>
-        <h1 class="form-title">Post a new notice</h1>
-        <p class="form-subtitle">Share an update with your community — add a photo if it helps tell the story.</p>
+        <h1 class="form-title">{% if editing %}Edit notice{% else %}Post a new notice{% endif %}</h1>
+        <p class="form-subtitle">{% if editing %}Update the details below.{% else %}Share an update with your community — add a photo if it helps tell the story.{% endif %}</p>
         <form method="post" enctype="multipart/form-data" class="notice-form">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="btn btn-block">Publish notice</button>
+            <button type="submit" class="btn btn-block">{% if editing %}Save changes{% else %}Publish notice{% endif %}</button>
         </form>
     </div>
 {% endblock %}
