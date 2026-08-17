@@ -115,3 +115,49 @@ class RegistrationTests(TestCase):
         })
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="baduser").exists())
+
+
+class AdminDashboardTests(TestCase):
+    def setUp(self):
+        self.regular_user = User.objects.create_user(username="member", password="password123")
+        self.admin_user = User.objects.create_superuser(username="adminuser", email="admin@test.com", password="adminpassword123")
+        self.category = Category.objects.create(name="General")
+        self.notice = Notice.objects.create(
+            title="Test Notice",
+            description="Test Description",
+            category=self.category,
+            posted_by=self.regular_user,
+        )
+
+    def test_regular_user_cannot_access_admin_dashboard(self):
+        self.client.login(username="member", password="password123")
+        response = self.client.get(reverse("admin_dashboard"))
+        # user_passes_test redirects unauthorized logged in users
+        self.assertEqual(response.status_code, 302)
+
+    def test_super_admin_can_access_admin_dashboard(self):
+        self.client.login(username="adminuser", password="adminpassword123")
+        response = self.client.get(reverse("admin_dashboard"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "System Overview & Controls")
+        self.assertContains(response, "Test Notice")
+
+    def test_super_admin_can_add_category(self):
+        self.client.login(username="adminuser", password="adminpassword123")
+        response = self.client.post(reverse("admin_dashboard"), {
+            "action": "add_category",
+            "category_name": "Emergency Alerts",
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Category.objects.filter(name="Emergency Alerts").exists())
+
+    def test_super_admin_can_toggle_notice_resolved(self):
+        self.client.login(username="adminuser", password="adminpassword123")
+        response = self.client.post(reverse("admin_dashboard"), {
+            "action": "toggle_resolved",
+            "notice_id": self.notice.pk,
+        })
+        self.assertEqual(response.status_code, 302)
+        self.notice.refresh_from_db()
+        self.assertTrue(self.notice.is_resolved)
+

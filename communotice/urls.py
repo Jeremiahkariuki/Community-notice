@@ -18,8 +18,10 @@ urlpatterns = [
     # Auth
     path('accounts/register/', notice_views.register, name='register'),
     path('accounts/profile/', notice_views.profile, name='profile'),
+    path('accounts/admin-dashboard/', notice_views.admin_dashboard, name='admin_dashboard'),
     path('accounts/login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
+
 
     # Notices
     path('notices/', include('notices.urls')),
