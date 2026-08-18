@@ -161,3 +161,46 @@ class AdminDashboardTests(TestCase):
         self.notice.refresh_from_db()
         self.assertTrue(self.notice.is_resolved)
 
+
+class NoticeSearchTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="searcher", password="testpass123")
+        self.category = Category.objects.create(name="Events")
+        self.match = Notice.objects.create(
+            title="Youth Football Tournament",
+            description="Registrations are now open for the summer tournament.",
+            category=self.category,
+            posted_by=self.user,
+        )
+        self.no_match = Notice.objects.create(
+            title="Water Interruption",
+            description="Water supply will be off 8am to 12pm.",
+            category=self.category,
+            posted_by=self.user,
+        )
+
+    def test_search_matches_title(self):
+        response = self.client.get(reverse("notices:list"), {"q": "Football"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Youth Football Tournament")
+        self.assertNotContains(response, "Water Interruption")
+
+    def test_search_matches_description(self):
+        response = self.client.get(reverse("notices:list"), {"q": "registrations"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Youth Football Tournament")
+
+    def test_search_is_case_insensitive(self):
+        response = self.client.get(reverse("notices:list"), {"q": "football"})
+        self.assertContains(response, "Youth Football Tournament")
+
+    def test_empty_search_shows_all_notices(self):
+        response = self.client.get(reverse("notices:list"))
+        self.assertContains(response, "Youth Football Tournament")
+        self.assertContains(response, "Water Interruption")
+
+    def test_search_with_no_matches_shows_empty_state(self):
+        response = self.client.get(reverse("notices:list"), {"q": "nonexistentxyz"})
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Youth Football Tournament")
+        self.assertNotContains(response, "Water Interruption")
