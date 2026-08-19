@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from .models import Notice, Category
@@ -40,8 +41,15 @@ def register(request):
 def notice_list(request):
     notices = Notice.objects.select_related("category", "posted_by")
     category_id = request.GET.get("category")
+    query = request.GET.get("q", "").strip()
+
     if category_id:
         notices = notices.filter(category_id=category_id)
+
+    if query:
+        notices = notices.filter(
+            Q(title__icontains=query) | Q(description__icontains=query)
+        )
 
     paginator = Paginator(notices, 6)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -50,6 +58,7 @@ def notice_list(request):
         "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": int(category_id) if category_id else None,
+        "query": query,
     })
 
 
@@ -176,4 +185,4 @@ def admin_dashboard(request):
         "all_users": User.objects.order_by("-date_joined"),
         "recent_notices": Notice.objects.select_related("category", "posted_by").all()[:10],
     }
-    return render(request, "registration/admin_dashboard.html", context)
+    return render(request, "registration/admin_dashboard.html", context)

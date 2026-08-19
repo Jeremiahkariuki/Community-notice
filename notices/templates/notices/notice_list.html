@@ -13,12 +13,27 @@
         {% endif %}
     </div>
 
+    <form method="get" class="search-bar">
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+        <input type="text" name="q" value="{{ query }}" placeholder="Search notices by title or description...">
+        <button type="submit" class="btn btn-small">Search</button>
+        {% if query %}
+            <a href="{% url 'notices:list' %}{% if selected_category %}?category={{ selected_category }}{% endif %}" class="btn btn-outline btn-small">Clear</a>
+        {% endif %}
+    </form>
+
     <div class="filter-bar">
-        <a href="{% url 'notices:list' %}" class="chip {% if not selected_category %}chip-active{% endif %}">All</a>
+        <a href="{% url 'notices:list' %}{% if query %}?q={{ query }}{% endif %}" class="chip {% if not selected_category %}chip-active{% endif %}">All</a>
         {% for cat in categories %}
-            <a href="?category={{ cat.id }}" class="chip {% if selected_category == cat.id %}chip-active{% endif %}">{{ cat.name }}</a>
+            <a href="?category={{ cat.id }}{% if query %}&q={{ query }}{% endif %}" class="chip {% if selected_category == cat.id %}chip-active{% endif %}">{{ cat.name }}</a>
         {% endfor %}
     </div>
+
+    {% if query %}
+        <p class="subtitle" style="margin-top:-14px;">
+            {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} for "{{ query }}"
+        </p>
+    {% endif %}
 
     <div class="notice-grid">
         {% for notice in page_obj %}
@@ -44,11 +59,16 @@
             </a>
         {% empty %}
             <div class="empty-state" style="grid-column: 1 / -1;">
-                <p>No notices yet. Be the first to post one!</p>
-                {% if user.is_authenticated %}
-                    <a href="{% url 'notices:create' %}" class="btn btn-small">+ Post a notice</a>
+                {% if query %}
+                    <p>No notices match "{{ query }}".</p>
+                    <a href="{% url 'notices:list' %}" class="btn btn-small">Clear search</a>
                 {% else %}
-                    <a href="{% url 'register' %}" class="btn btn-small">Sign up to post</a>
+                    <p>No notices yet. Be the first to post one!</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'notices:create' %}" class="btn btn-small">+ Post a notice</a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-small">Sign up to post</a>
+                    {% endif %}
                 {% endif %}
             </div>
         {% endfor %}
@@ -57,11 +77,11 @@
     {% if page_obj.has_other_pages %}
     <div class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&laquo; Prev</a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">&laquo; Prev</a>
         {% endif %}
         <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">Next &raquo;</a>
+            <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">Next &raquo;</a>
         {% endif %}
     </div>
     {% endif %}
