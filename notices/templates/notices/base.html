@@ -25,6 +25,25 @@
             </nav>
             <div class="header-actions">
                 {% if user.is_authenticated %}
+                    <div class="notif-bell">
+                        <a href="{% url 'notices:notifications' %}" class="bell-link" title="Notifications">
+                            🔔
+                            {% if unread_notification_count %}
+                                <span class="bell-badge">{{ unread_notification_count }}</span>
+                            {% endif %}
+                        </a>
+                        {% if recent_notifications %}
+                            <div class="notif-dropdown">
+                                {% for n in recent_notifications %}
+                                    <a href="{% url 'notices:notification_read' n.pk %}" class="notif-dropdown-item {% if not n.is_read %}unread{% endif %}">
+                                        {{ n.verb }}
+                                        <span class="meta">{{ n.created_at|timesince }} ago</span>
+                                    </a>
+                                {% endfor %}
+                                <a href="{% url 'notices:notifications' %}" class="notif-dropdown-footer">See all</a>
+                            </div>
+                        {% endif %}
+                    </div>
                     <a href="{% url 'profile' %}" class="hello" style="text-decoration:none;">Hi, {{ user.first_name|default:user.username }}</a>
                     {% if user.is_staff or user.is_superuser %}
                         <a href="{% url 'admin_dashboard' %}" class="btn btn-small" style="background: var(--purple); border-color: var(--purple);">⚡ Admin Dashboard</a>
@@ -94,7 +113,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="footer-bottom">&copy; {% now "Y" %} CommuNotice. Built with Django — a community notice board demo.</div>
+            <div class="footer-bottom">&copy; {% now "Y" %} CommuNotice. Built with Django — a community notice board .</div>
         </div>
     </footer>
 </body>

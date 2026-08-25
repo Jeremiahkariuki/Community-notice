@@ -157,12 +157,6 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
 .messages li { padding: 12px 16px; border-radius: 10px; background: var(--green-light); color: var(--green-dark); font-weight: 600; font-size: 0.92rem; }
 .messages li.error { background: #fdeaea; color: #b3261e; }
 
-.search-bar { display: flex; gap: 10px; margin: 22px 0 0; flex-wrap: wrap; }
-.search-bar input[type="text"] {
-    flex: 1; min-width: 220px; padding: 11px 18px; border: 1px solid var(--line);
-    border-radius: 999px; font: inherit; background: #fff;
-}
-.search-bar input[type="text"]:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-light); }
 .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 22px 0 30px; }
 .chip { border: 1px solid var(--line); padding: 7px 16px; border-radius: 999px; text-decoration: none; color: var(--ink); font-size: 0.88rem; background: #fff; font-weight: 500; }
 .chip:hover { border-color: var(--green); }
@@ -249,3 +243,67 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
     .hero h1 { font-size: 2.1rem; }
     .feature-grid, .stats-grid, .how-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Comments, gallery, notifications (added) ---- */
+.location-pin { color: var(--green-dark); font-weight: 600; }
+
+.notice-gallery {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin-top: 18px;
+}
+.notice-gallery img {
+    width: 100%; height: 100px; object-fit: cover; border-radius: 10px;
+    border: 1px solid var(--line); display: block;
+}
+.existing-gallery { margin-bottom: 18px; }
+.gallery-remove-item { display: block; font-size: 0.8rem; text-align: center; }
+.gallery-remove-item img { margin-bottom: 4px; }
+
+.comments-section { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
+.comments-title { font-size: 1.2rem; margin-bottom: 16px; }
+.comment-count { color: var(--muted); font-weight: 400; font-size: 0.9rem; }
+.comment-form { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 22px; }
+.comment-form textarea {
+    flex: 1; border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px;
+    font: inherit; resize: vertical;
+}
+.comment-form textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-light); }
+.comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 14px; }
+.comment-item { background: var(--green-pale); border-radius: 12px; padding: 14px 16px; }
+.comment-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; }
+.comment-body { margin: 0; font-size: 0.94rem; }
+.muted-note { color: var(--muted); font-size: 0.9rem; }
+
+/* Notification bell */
+.notif-bell { position: relative; display: inline-flex; align-items: center; }
+.bell-link { position: relative; text-decoration: none; font-size: 1.15rem; padding: 4px 6px; }
+.bell-badge {
+    position: absolute; top: -2px; right: -2px; background: #d64545; color: #fff;
+    font-size: 0.65rem; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+}
+.notif-dropdown {
+    display: none; position: absolute; top: 130%; right: 0; background: #fff;
+    border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 28px rgba(0,0,0,.14);
+    width: 280px; z-index: 40; overflow: hidden;
+}
+.notif-bell:hover .notif-dropdown, .notif-bell:focus-within .notif-dropdown { display: block; }
+.notif-dropdown-item {
+    display: block; padding: 10px 14px; font-size: 0.84rem; text-decoration: none; color: var(--ink, #222);
+    border-bottom: 1px solid var(--line);
+}
+.notif-dropdown-item.unread { background: var(--green-pale); font-weight: 600; }
+.notif-dropdown-item .meta { display: block; font-size: 0.72rem; margin-top: 2px; }
+.notif-dropdown-footer {
+    display: block; text-align: center; padding: 8px; font-size: 0.82rem; font-weight: 700;
+    color: var(--green-dark); text-decoration: none;
+}
+
+.notif-page-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.notif-page-item a {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    text-decoration: none; color: inherit; background: #fff; border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 16px;
+}
+.notif-page-item.unread a { background: var(--green-pale); border-color: var(--green-light); }
+.notif-page-item p { margin: 0; font-size: 0.92rem; }

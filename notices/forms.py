@@ -1,21 +1,59 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Notice
+from .models import Notice, Comment
+
+
+class MultiFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultiFileField(forms.FileField):
+    """A FileField that accepts and returns a list of uploaded files."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultiFileInput(attrs={"multiple": True, "accept": "image/*"}))
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            return [single_file_clean(d, initial) for d in data]
+        return single_file_clean(data, initial)
 
 
 class NoticeForm(forms.ModelForm):
+    extra_images = MultiFileField(
+        required=False,
+        label="Additional photos (optional)",
+        help_text="You can select multiple photos to add to a gallery on this notice.",
+    )
+
     class Meta:
         model = Notice
-        fields = ["title", "description", "category", "image"]
+        fields = ["title", "description", "category", "location", "image"]
         widgets = {
             "title": forms.TextInput(attrs={"placeholder": "e.g. Water interruption on Elm Street"}),
             "description": forms.Textarea(attrs={"rows": 5, "placeholder": "Add all the useful details..."}),
+            "location": forms.TextInput(attrs={"placeholder": "e.g. Elm Street / Riverside Estate"}),
             "image": forms.ClearableFileInput(attrs={"accept": "image/*"}),
         }
         labels = {
-            "image": "Photo (optional)",
+            "image": "Cover photo (optional)",
+            "location": "Location (optional)",
         }
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ["body"]
+        widgets = {
+            "body": forms.Textarea(
+                attrs={"rows": 3, "placeholder": "Add a comment or update...", "maxlength": 1000}
+            ),
+        }
+        labels = {"body": ""}
 
 
 class SignUpForm(UserCreationForm):

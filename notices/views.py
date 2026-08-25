@@ -2,12 +2,19 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
-from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
-from .models import Notice, Category
-from .forms import NoticeForm, SignUpForm
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from .models import Notice, Category, NoticeImage, Comment, Notification
+from .forms import NoticeForm, SignUpForm, CommentForm
 
+
+def notify(recipient, verb, actor=None, notice=None):
+    """Create an in-app notification, skipping self-notifications."""
+    if recipient is None or (actor is not None and recipient == actor):
+        return
+    Notification.objects.create(recipient=recipient, actor=actor, notice=notice, verb=verb)
 
 
 def home(request):
@@ -41,15 +48,8 @@ def register(request):
 def notice_list(request):
     notices = Notice.objects.select_related("category", "posted_by")
     category_id = request.GET.get("category")
-    query = request.GET.get("q", "").strip()
-
     if category_id:
         notices = notices.filter(category_id=category_id)
-
-    if query:
-        notices = notices.filter(
-            Q(title__icontains=query) | Q(description__icontains=query)
-        )
 
     paginator = Paginator(notices, 6)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -58,13 +58,53 @@ def notice_list(request):
         "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": int(category_id) if category_id else None,
-        "query": query,
     })
 
 
 def notice_detail(request, pk):
     notice = get_object_or_404(Notice, pk=pk)
-    return render(request, "notices/notice_detail.html", {"notice": notice})
+    comments = notice.comments.select_related("author")
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.error(request, "Please log in to comment.")
+            return redirect("login")
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.notice = notice
+            comment.author = request.user
+            comment.save()
+            notify(
+                recipient=notice.posted_by,
+                actor=request.user,
+                notice=notice,
+                verb=f"{request.user.username} commented on your notice \"{notice.title}\".",
+            )
+            messages.success(request, "Comment posted.")
+            return redirect("notices:detail", pk=notice.pk)
+    else:
+        comment_form = CommentForm()
+
+    return render(request, "notices/notice_detail.html", {
+        "notice": notice,
+        "comments": comments,
+        "comment_form": comment_form,
+        "gallery_images": notice.extra_images.all(),
+    })
+
+
+@login_required
+def comment_delete(request, pk, comment_pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    comment = get_object_or_404(Comment, pk=comment_pk, notice=notice)
+    if comment.author != request.user and notice.posted_by != request.user:
+        messages.error(request, "You can only delete your own comments.")
+        return redirect("notices:detail", pk=notice.pk)
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, "Comment deleted.")
+    return redirect("notices:detail", pk=notice.pk)
 
 
 @login_required
@@ -75,6 +115,8 @@ def notice_create(request):
             notice = form.save(commit=False)
             notice.posted_by = request.user
             notice.save()
+            for extra_image in form.cleaned_data.get("extra_images") or []:
+                NoticeImage.objects.create(notice=notice, image=extra_image)
             messages.success(request, "Your notice has been posted.")
             return redirect("notices:detail", pk=notice.pk)
     else:
@@ -101,11 +143,21 @@ def notice_edit(request, pk):
         form = NoticeForm(request.POST, request.FILES, instance=notice)
         if form.is_valid():
             form.save()
+            for extra_image in form.cleaned_data.get("extra_images") or []:
+                NoticeImage.objects.create(notice=notice, image=extra_image)
+            remove_ids = request.POST.getlist("remove_image")
+            if remove_ids:
+                NoticeImage.objects.filter(notice=notice, pk__in=remove_ids).delete()
             messages.success(request, "Notice updated.")
             return redirect("notices:detail", pk=notice.pk)
     else:
         form = NoticeForm(instance=notice)
-    return render(request, "notices/notice_form.html", {"form": form, "editing": True, "notice": notice})
+    return render(request, "notices/notice_form.html", {
+        "form": form,
+        "editing": True,
+        "notice": notice,
+        "gallery_images": notice.extra_images.all(),
+    })
 
 
 @login_required
@@ -120,6 +172,25 @@ def notice_delete(request, pk):
         messages.success(request, "Notice deleted.")
         return redirect("notices:mine")
     return render(request, "notices/notice_confirm_delete.html", {"notice": notice})
+
+
+@login_required
+def notification_list(request):
+    notifications = request.user.notifications.select_related("actor", "notice")
+    notifications.filter(is_read=False).update(is_read=True)
+    paginator = Paginator(notifications, 15)
+    page_obj = paginator.get_page(request.GET.get("page"))
+    return render(request, "notices/notification_list.html", {"page_obj": page_obj})
+
+
+@login_required
+def notification_mark_read(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, recipient=request.user)
+    notification.is_read = True
+    notification.save(update_fields=["is_read"])
+    if notification.notice_id:
+        return redirect("notices:detail", pk=notification.notice_id)
+    return redirect("notices:notifications")
 
 
 @login_required

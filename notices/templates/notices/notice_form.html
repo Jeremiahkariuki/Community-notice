@@ -7,7 +7,20 @@
         </div>
         <h1 class="form-title">{% if editing %}Edit notice{% else %}Post a new notice{% endif %}</h1>
         <p class="form-subtitle">{% if editing %}Update the details below.{% else %}Share an update with your community — add a photo if it helps tell the story.{% endif %}</p>
-        <form method="post" enctype="multipart/form-data" class="notice-form">
+        {% if editing and gallery_images %}
+            <div class="existing-gallery">
+                <p class="form-subtitle" style="margin-bottom:8px;">Existing extra photos — tick to remove:</p>
+                <div class="notice-gallery">
+                    {% for img in gallery_images %}
+                        <label class="gallery-remove-item">
+                            <img src="{{ img.image.url }}" alt="Existing photo">
+                            <span><input type="checkbox" name="remove_image" value="{{ img.pk }}" form="notice-form"> Remove</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data" class="notice-form" id="notice-form">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-block">{% if editing %}Save changes{% else %}Publish notice{% endif %}</button>

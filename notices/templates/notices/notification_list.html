@@ -1,0 +1,37 @@
+{% extends "notices/base.html" %}
+{% block title %}Notifications — CommuNotice{% endblock %}
+{% block content %}
+    <div class="list-header">
+        <div>
+            <h1 class="page-title">Notifications</h1>
+            <p class="subtitle">Updates on notices and comments that involve you.</p>
+        </div>
+    </div>
+
+    <ul class="notif-page-list">
+        {% for n in page_obj %}
+            <li class="notif-page-item {% if not n.is_read %}unread{% endif %}">
+                <a href="{% url 'notices:notification_read' n.pk %}">
+                    <p>{{ n.verb }}</p>
+                    <span class="meta">{{ n.created_at|date:"d M Y, H:i" }}</span>
+                </a>
+            </li>
+        {% empty %}
+            <div class="empty-state">
+                <p>No notifications yet. When someone comments on your notice, you'll see it here.</p>
+            </div>
+        {% endfor %}
+    </ul>
+
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">&laquo; Prev</a>
+        {% endif %}
+        <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endblock %}
