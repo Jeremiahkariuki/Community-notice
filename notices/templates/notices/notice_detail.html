@@ -12,6 +12,9 @@
             <h1 class="page-title">{{ notice.title }}</h1>
             <div class="meta">
                 Posted by <strong>{{ notice.posted_by.username }}</strong> &middot; {{ notice.created_at|date:"d M Y, H:i" }}
+                {% if notice.location %}
+                    &middot; <span class="location-pin">📍 {{ notice.location }}</span>
+                {% endif %}
             </div>
             <p class="description">{{ notice.description|linebreaks }}</p>
             {% if user == notice.posted_by %}
@@ -20,6 +23,52 @@
                     <a href="{% url 'notices:delete' notice.pk %}" class="btn btn-outline btn-small" style="color:#b3261e; border-color:#f3d4d2;">Delete</a>
                 </div>
             {% endif %}
+
+            {% if gallery_images %}
+                <div class="notice-gallery">
+                    {% for img in gallery_images %}
+                        <a href="{{ img.image.url }}" target="_blank" rel="noopener">
+                            <img src="{{ img.image.url }}" alt="{{ notice.title }} photo">
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </article>
+
+    <section class="comments-section">
+        <h2 class="comments-title">Comments <span class="comment-count">({{ comments|length }})</span></h2>
+
+        {% if user.is_authenticated %}
+            <form method="post" class="comment-form">
+                {% csrf_token %}
+                {{ comment_form.body }}
+                <button type="submit" class="btn btn-small">Post comment</button>
+            </form>
+        {% else %}
+            <p class="muted-note">
+                <a href="{% url 'login' %}">Log in</a> to join the conversation.
+            </p>
+        {% endif %}
+
+        <ul class="comment-list">
+            {% for comment in comments %}
+                <li class="comment-item">
+                    <div class="comment-head">
+                        <strong>{{ comment.author.username }}</strong>
+                        <span class="meta">{{ comment.created_at|timesince }} ago</span>
+                    </div>
+                    <p class="comment-body">{{ comment.body|linebreaksbr }}</p>
+                    {% if user == comment.author or user == notice.posted_by %}
+                        <form method="post" action="{% url 'notices:comment_delete' notice.pk comment.pk %}" class="inline-form">
+                            {% csrf_token %}
+                            <button type="submit" class="link-btn" style="color:#b3261e;">Delete</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% empty %}
+                <li class="muted-note">No comments yet — be the first to say something.</li>
+            {% endfor %}
+        </ul>
+    </section>
 {% endblock %}
