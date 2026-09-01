@@ -2,6 +2,11 @@
 {% block title %}{{ notice.title }} — CommuNotice{% endblock %}
 {% block content %}
     <a class="back-link" href="{% url 'notices:list' %}">&larr; Back to all notices</a>
+    {% if notice.is_expired %}
+        <div style="background:#fee2e2; border:1px solid #fca5a5; color:#991b1b; padding:12px 16px; border-radius:8px; margin-bottom:16px; font-weight:500;">
+            ⏳ <strong>Notice Expired:</strong> This notice passed its expiration date ({{ notice.expires_at|date:"M j, Y • g:i A" }}) and is no longer displayed in public notice feeds.
+        </div>
+    {% endif %}
     <article class="notice-detail">
         {% if notice.image %}
             <img class="detail-photo" src="{{ notice.image.url }}" alt="{{ notice.title }}">
@@ -9,11 +14,15 @@
         <div class="detail-body">
             <span class="category-tag">{{ notice.category.name }}</span>
             {% if notice.is_resolved %}<span class="badge" style="position:static; margin-left:8px;">Resolved</span>{% endif %}
+            {% if notice.is_expired %}<span class="badge" style="position:static; margin-left:8px; background:#fee2e2; color:#991b1b;">Expired</span>{% endif %}
             <h1 class="page-title">{{ notice.title }}</h1>
             <div class="meta">
                 Posted by <strong>{{ notice.posted_by.username }}</strong> &middot; {{ notice.created_at|date:"d M Y, H:i" }}
                 {% if notice.location %}
                     &middot; <span class="location-pin">📍 {{ notice.location }}</span>
+                {% endif %}
+                {% if notice.expires_at %}
+                    &middot; ⏱️ Expiration: <strong>{{ notice.expires_at|date:"d M Y, H:i" }}</strong>
                 {% endif %}
             </div>
             <p class="description">{{ notice.description|linebreaks }}</p>

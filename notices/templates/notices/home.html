@@ -76,7 +76,7 @@
                         </span>
                         <span>
                             <h3>{{ notice.title }}</h3>
-                            <p class="when">{{ notice.created_at|date:"M j, Y • g:i A" }}</p>
+                            <p class="when">{% if notice.expires_at %}Expires: {{ notice.expires_at|date:"M j, g:i A" }}{% else %}{{ notice.created_at|date:"M j, Y • g:i A" }}{% endif %}</p>
                             <p class="snippet">{{ notice.description|truncatewords:10 }}</p>
                         </span>
                     </a>

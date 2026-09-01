@@ -13,11 +13,18 @@
         {% endif %}
     </div>
 
-    <div class="filter-bar">
-        <a href="{% url 'notices:list' %}" class="chip {% if not selected_category %}chip-active{% endif %}">All</a>
-        {% for cat in categories %}
-            <a href="?category={{ cat.id }}" class="chip {% if selected_category == cat.id %}chip-active{% endif %}">{{ cat.name }}</a>
-        {% endfor %}
+    <div class="filter-bar" style="display:flex; flex-wrap:wrap; justify-space-between; align-items:center; gap:10px;">
+        <div style="display:flex; gap:6px;">
+            <a href="?status=active{% if selected_category %}&category={{ selected_category }}{% endif %}" class="chip {% if status_filter == 'active' %}chip-active{% endif %}">Active Notices</a>
+            <a href="?status=expired{% if selected_category %}&category={{ selected_category }}{% endif %}" class="chip {% if status_filter == 'expired' %}chip-active{% endif %}">Expired</a>
+            <a href="?status=all{% if selected_category %}&category={{ selected_category }}{% endif %}" class="chip {% if status_filter == 'all' %}chip-active{% endif %}">All</a>
+        </div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <a href="{% url 'notices:list' %}{% if status_filter != 'active' %}?status={{ status_filter }}{% endif %}" class="chip {% if not selected_category %}chip-active{% endif %}">All Categories</a>
+            {% for cat in categories %}
+                <a href="?category={{ cat.id }}{% if status_filter != 'active' %}&status={{ status_filter }}{% endif %}" class="chip {% if selected_category == cat.id %}chip-active{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+        </div>
     </div>
 
     <div class="notice-grid">
@@ -31,7 +38,14 @@
                     </div>
                 {% endif %}
                 <div class="card-body">
-                    <span class="category-tag">{{ notice.category.name }}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <span class="category-tag">{{ notice.category.name }}</span>
+                        {% if notice.is_expired %}
+                            <span class="badge" style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:600;">Expired</span>
+                        {% elif notice.expires_at %}
+                            <span class="badge" style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:600;">Expires {{ notice.expires_at|date:"M j, g:i A" }}</span>
+                        {% endif %}
+                    </div>
                     <h2>{{ notice.title }}</h2>
                     <p>{{ notice.description|truncatewords:18 }}</p>
                     <div class="meta">

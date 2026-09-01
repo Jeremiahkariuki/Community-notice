@@ -21,10 +21,25 @@
                         </div>
                     {% endif %}
                     <div class="card-body">
-                        <span class="category-tag">{{ notice.category.name }}</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span class="category-tag">{{ notice.category.name }}</span>
+                            {% if notice.is_expired %}
+                                <span class="badge" style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:600;">Expired</span>
+                            {% elif notice.expires_at %}
+                                <span class="badge" style="background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:600;">Expires {{ notice.expires_at|date:"M j, g:i A" }}</span>
+                            {% else %}
+                                <span class="badge" style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:600;">Active</span>
+                            {% endif %}
+                        </div>
                         <h2>{{ notice.title }}</h2>
                         <p>{{ notice.description|truncatewords:16 }}</p>
-                        <div class="meta">{{ notice.created_at|timesince }} ago</div>
+                        <div class="meta">
+                            <span>Posted {{ notice.created_at|timesince }} ago</span>
+                            {% if notice.expires_at %}
+                                <span>&middot;</span>
+                                <span>{% if notice.is_expired %}Expired on {{ notice.expires_at|date:"M j, g:i A" }}{% else %}Expires on {{ notice.expires_at|date:"M j, g:i A" }}{% endif %}</span>
+                            {% endif %}
+                        </div>
                     </div>
                 </a>
                 <div style="display:flex; gap:8px; padding:0 18px 18px;">

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -10,6 +11,22 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class NoticeQuerySet(models.QuerySet):
+    def active(self):
+        now = timezone.now()
+        return self.filter(
+            models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=now)
+        ).filter(is_resolved=False)
+
+
+class NoticeManager(models.Manager):
+    def get_queryset(self):
+        return NoticeQuerySet(self.model, using=self._db)
+
+    def active(self):
+        return self.get_queryset().active()
 
 
 class Notice(models.Model):
@@ -24,13 +41,26 @@ class Notice(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="notices")
     posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notices")
     created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Optional date and time when this notice automatically expires and disappears from public listings",
+    )
     is_resolved = models.BooleanField(default=False)
+
+    objects = NoticeManager()
 
     class Meta:
         ordering = ["-created_at"]
 
     def __str__(self):
         return self.title
+
+    @property
+    def is_expired(self):
+        if self.expires_at:
+            return timezone.now() > self.expires_at
+        return False
 
 
 class NoticeImage(models.Model):

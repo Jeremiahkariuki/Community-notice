@@ -204,3 +204,47 @@ class NoticeSearchTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "Youth Football Tournament")
         self.assertNotContains(response, "Water Interruption")
+
+
+class NoticeExpirationTests(TestCase):
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        self.user = User.objects.create_user(username="timer", password="password123")
+        self.category = Category.objects.create(name="Alerts")
+
+        self.active_notice = Notice.objects.create(
+            title="Active Emergency Notice",
+            description="Still valid notice",
+            category=self.category,
+            posted_by=self.user,
+            expires_at=timezone.now() + timedelta(days=2),
+        )
+
+        self.expired_notice = Notice.objects.create(
+            title="Old Past Notice",
+            description="This notice has expired",
+            category=self.category,
+            posted_by=self.user,
+            expires_at=timezone.now() - timedelta(hours=1),
+        )
+
+    def test_is_expired_property(self):
+        self.assertFalse(self.active_notice.is_expired)
+        self.assertTrue(self.expired_notice.is_expired)
+
+    def test_active_queryset_filters_out_expired(self):
+        active_notices = Notice.objects.active()
+        self.assertIn(self.active_notice, active_notices)
+        self.assertNotIn(self.expired_notice, active_notices)
+
+    def test_notice_list_view_hides_expired_by_default(self):
+        response = self.client.get(reverse("notices:list"))
+        self.assertContains(response, "Active Emergency Notice")
+        self.assertNotContains(response, "Old Past Notice")
+
+    def test_notice_list_view_shows_expired_when_filtered(self):
+        response = self.client.get(reverse("notices:list"), {"status": "expired"})
+        self.assertContains(response, "Old Past Notice")
+        self.assertNotContains(response, "Active Emergency Notice")

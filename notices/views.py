@@ -17,13 +17,17 @@ def notify(recipient, verb, actor=None, notice=None):
     Notification.objects.create(recipient=recipient, actor=actor, notice=notice, verb=verb)
 
 
+from django.db import models
+from django.utils import timezone
+
+
 def home(request):
-    """Landing page: hero, live preview of latest notices, features & stats."""
-    latest_notices = Notice.objects.select_related("category", "posted_by")[:3]
+    """Landing page: hero, live preview of latest active notices, features & stats."""
+    latest_notices = Notice.objects.active().select_related("category", "posted_by")[:3]
     context = {
         "latest_notices": latest_notices,
         "member_count": User.objects.count(),
-        "notice_count": Notice.objects.count(),
+        "notice_count": Notice.objects.active().count(),
         "category_count": Category.objects.count(),
     }
     return render(request, "notices/home.html", context)
@@ -46,10 +50,23 @@ def register(request):
 
 
 def notice_list(request):
-    notices = Notice.objects.select_related("category", "posted_by")
+    status_filter = request.GET.get("status", "active")
+    now = timezone.now()
+
+    if status_filter == "all":
+        notices = Notice.objects.select_related("category", "posted_by")
+    elif status_filter == "expired":
+        notices = Notice.objects.filter(expires_at__lte=now).select_related("category", "posted_by")
+    else:
+        notices = Notice.objects.active().select_related("category", "posted_by")
+
     category_id = request.GET.get("category")
     if category_id:
         notices = notices.filter(category_id=category_id)
+
+    q = request.GET.get("q")
+    if q:
+        notices = notices.filter(models.Q(title__icontains=q) | models.Q(description__icontains=q))
 
     paginator = Paginator(notices, 6)
     page_obj = paginator.get_page(request.GET.get("page"))
@@ -58,6 +75,8 @@ def notice_list(request):
         "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": int(category_id) if category_id else None,
+        "status_filter": status_filter,
+        "search_query": q or "",
     })
 
 

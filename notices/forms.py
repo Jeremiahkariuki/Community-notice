@@ -31,17 +31,30 @@ class NoticeForm(forms.ModelForm):
 
     class Meta:
         model = Notice
-        fields = ["title", "description", "category", "location", "image"]
+        fields = ["title", "description", "category", "location", "expires_at", "image"]
         widgets = {
             "title": forms.TextInput(attrs={"placeholder": "e.g. Water interruption on Elm Street"}),
             "description": forms.Textarea(attrs={"rows": 5, "placeholder": "Add all the useful details..."}),
             "location": forms.TextInput(attrs={"placeholder": "e.g. Elm Street / Riverside Estate"}),
+            "expires_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local"},
+                format="%Y-%m-%dT%H:%M",
+            ),
             "image": forms.ClearableFileInput(attrs={"accept": "image/*"}),
         }
         labels = {
+            "expires_at": "Expiration Date & Time (Optional)",
             "image": "Cover photo (optional)",
             "location": "Location (optional)",
         }
+        help_texts = {
+            "expires_at": "Notice will automatically disappear from public listings after this date and time.",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk and self.instance.expires_at:
+            self.initial["expires_at"] = self.instance.expires_at.strftime("%Y-%m-%dT%H:%M")
 
 
 class CommentForm(forms.ModelForm):
