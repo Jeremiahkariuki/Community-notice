@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
+    {% if active_emergency_alerts %}
+        <div class="emergency-alert-banner">
+            <div class="wrap emergency-banner-content">
+                <div class="emergency-banner-text">
+                    <span class="emergency-pulse-icon">🚨</span>
+                    <strong>CRITICAL COMMUNITY ALERT:</strong>
+                    {% for alert in active_emergency_alerts %}
+                        <a href="{% url 'notices:detail' alert.pk %}" class="emergency-link">
+                            {{ alert.title }}{% if alert.location %} (📍 {{ alert.location }}){% endif %}
+                        </a>{% if not forloop.last %} &bull; {% endif %}
+                    {% endfor %}
+                </div>
+                <a href="{% url 'notices:list' %}?priority=emergency" class="emergency-badge-btn">View Emergency Alerts &rarr;</a>
+            </div>
+        </div>
+    {% endif %}
     <header class="site-header">
         <div class="wrap">
             <a class="brand" href="{% url 'home' %}">

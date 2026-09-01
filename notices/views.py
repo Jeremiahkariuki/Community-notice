@@ -64,6 +64,10 @@ def notice_list(request):
     if category_id:
         notices = notices.filter(category_id=category_id)
 
+    priority_filter = request.GET.get("priority")
+    if priority_filter in ["emergency", "important", "normal"]:
+        notices = notices.filter(priority=priority_filter)
+
     q = request.GET.get("q")
     if q:
         notices = notices.filter(models.Q(title__icontains=q) | models.Q(description__icontains=q))
@@ -75,6 +79,7 @@ def notice_list(request):
         "page_obj": page_obj,
         "categories": Category.objects.all(),
         "selected_category": int(category_id) if category_id else None,
+        "selected_priority": priority_filter or "",
         "status_filter": status_filter,
         "search_query": q or "",
     })

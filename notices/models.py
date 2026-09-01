@@ -30,6 +30,12 @@ class NoticeManager(models.Manager):
 
 
 class Notice(models.Model):
+    PRIORITY_CHOICES = [
+        ("normal", "Normal"),
+        ("important", "Important ⚡"),
+        ("emergency", "Emergency Alert 🚨"),
+    ]
+
     title = models.CharField(max_length=120)
     description = models.TextField()
     image = models.ImageField(upload_to="notices/%Y/%m/", blank=True, null=True)
@@ -40,6 +46,12 @@ class Notice(models.Model):
     )
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="notices")
     posted_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notices")
+    priority = models.CharField(
+        max_length=20,
+        choices=PRIORITY_CHOICES,
+        default="normal",
+        help_text="Urgency level of this notice",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(
         blank=True,

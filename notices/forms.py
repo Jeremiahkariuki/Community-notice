@@ -31,10 +31,11 @@ class NoticeForm(forms.ModelForm):
 
     class Meta:
         model = Notice
-        fields = ["title", "description", "category", "location", "expires_at", "image"]
+        fields = ["title", "description", "category", "priority", "location", "expires_at", "image"]
         widgets = {
             "title": forms.TextInput(attrs={"placeholder": "e.g. Water interruption on Elm Street"}),
             "description": forms.Textarea(attrs={"rows": 5, "placeholder": "Add all the useful details..."}),
+            "priority": forms.Select(attrs={"class": "form-select"}),
             "location": forms.TextInput(attrs={"placeholder": "e.g. Elm Street / Riverside Estate"}),
             "expires_at": forms.DateTimeInput(
                 attrs={"type": "datetime-local"},
@@ -43,11 +44,13 @@ class NoticeForm(forms.ModelForm):
             "image": forms.ClearableFileInput(attrs={"accept": "image/*"}),
         }
         labels = {
+            "priority": "Urgency Level",
             "expires_at": "Expiration Date & Time (Optional)",
             "image": "Cover photo (optional)",
             "location": "Location (optional)",
         }
         help_texts = {
+            "priority": "Selecting 'Emergency Alert 🚨' displays a prominent warning banner at the top of all pages.",
             "expires_at": "Notice will automatically disappear from public listings after this date and time.",
         }
 

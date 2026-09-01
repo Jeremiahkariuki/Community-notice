@@ -307,3 +307,101 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
 }
 .notif-page-item.unread a { background: var(--green-pale); border-color: var(--green-light); }
 .notif-page-item p { margin: 0; font-size: 0.92rem; }
+
+/* ---------- Emergency Alert Banner & Priority Badges ---------- */
+.emergency-alert-banner {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    color: #ffffff;
+    padding: 10px 0;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.35);
+    position: relative;
+    z-index: 30;
+    border-bottom: 2px solid #fca5a5;
+}
+.emergency-banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 0.92rem;
+}
+.emergency-pulse-icon {
+    font-size: 1.2rem;
+    animation: emergencyPulse 1.4s infinite ease-in-out;
+}
+@keyframes emergencyPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.25); opacity: 0.85; }
+}
+.emergency-banner-text {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.emergency-banner-text strong {
+    letter-spacing: 0.03em;
+    font-weight: 800;
+}
+.emergency-link {
+    color: #fef08a;
+    font-weight: 700;
+    text-decoration: underline;
+}
+.emergency-link:hover {
+    color: #ffffff;
+}
+.emergency-badge-btn {
+    background: #ffffff;
+    color: #991b1b;
+    padding: 5px 14px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 0.78rem;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+}
+.emergency-badge-btn:hover {
+    background: #fef08a;
+    transform: translateY(-1px);
+}
+
+.badge-emergency {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 800;
+}
+.badge-important {
+    background: #ffedd5;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 800;
+}
+.badge-normal {
+    background: #e0e7ff;
+    color: #3730a3;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.73rem;
+    font-weight: 700;
+}
+.chip-emergency {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #fca5a5;
+}
+.chip-important {
+    background: #ffedd5;
+    color: #c2410c;
+    border-color: #fed7aa;
+}

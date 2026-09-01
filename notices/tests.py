@@ -60,6 +60,7 @@ class NoticeViewTests(TestCase):
             "title": "Free bookshelf",
             "description": "Solid wood, good condition, porch pickup.",
             "category": self.category.id,
+            "priority": "normal",
         })
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Notice.objects.filter(title="Free bookshelf").exists())
@@ -70,6 +71,7 @@ class NoticeViewTests(TestCase):
             "title": "Lost dog near the park",
             "description": "Brown labrador, answers to Max.",
             "category": self.category.id,
+            "priority": "normal",
             "image": make_test_image(),
         })
         self.assertEqual(response.status_code, 302)
@@ -248,3 +250,37 @@ class NoticeExpirationTests(TestCase):
         response = self.client.get(reverse("notices:list"), {"status": "expired"})
         self.assertContains(response, "Old Past Notice")
         self.assertNotContains(response, "Active Emergency Notice")
+
+
+class NoticePriorityTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="priorityuser", password="password123")
+        self.category = Category.objects.create(name="Security Alerts")
+
+        self.emergency_notice = Notice.objects.create(
+            title="Main Water Line Leak on Elm St",
+            description="Water shutoff expected immediately",
+            category=self.category,
+            posted_by=self.user,
+            priority="emergency",
+        )
+
+        self.important_notice = Notice.objects.create(
+            title="Road Construction Next Week",
+            description="Single lane traffic near bridge",
+            category=self.category,
+            posted_by=self.user,
+            priority="important",
+        )
+
+    def test_emergency_alert_banner_renders_on_pages(self):
+        response = self.client.get(reverse("home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "CRITICAL COMMUNITY ALERT:")
+        self.assertContains(response, "Main Water Line Leak on Elm St")
+
+    def test_notice_list_priority_filter(self):
+        response = self.client.get(reverse("notices:list"), {"priority": "emergency"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Main Water Line Leak on Elm St")
+        self.assertNotContains(response, "Road Construction Next Week")
