@@ -231,6 +231,7 @@ img { max-width: 100%; display: block; }
 .icon-yellow { background: var(--yellow-light); color: var(--yellow); }
 .icon-purple { background: var(--purple-light); color: var(--purple); }
 .icon-blue { background: var(--blue-light); color: var(--blue); }
+.icon-red { background: #fee2e2; color: #991b1b; }
 
 /* ---------- Feature strip ---------- */
 .feature-strip { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 32px; margin: -40px auto 70px; box-shadow: 0 18px 40px rgba(20,40,25,.06); position: relative; z-index: 5; }
