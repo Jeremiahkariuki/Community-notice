@@ -162,6 +162,163 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
 .chip:hover { border-color: var(--green); }
 .chip-active { background: var(--green); color: #fff; border-color: var(--green); }
 
+/* ---------- Professional Filter Bar Toolbar ---------- */
+.filter-toolbar-card {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 20px 0 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+}
+.filter-search-group {
+    flex: 1 1 240px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.filter-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.filter-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: #fbfcfb;
+    color: var(--ink);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.filter-search-input:focus {
+    outline: none;
+    border-color: var(--green);
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--green-light);
+}
+.search-icon-svg {
+    position: absolute;
+    left: 12px;
+    width: 17px;
+    height: 17px;
+    color: var(--muted);
+    pointer-events: none;
+}
+.filter-select-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.filter-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.filter-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-left: 2px;
+}
+.filter-select {
+    padding: 9px 34px 9px 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #2c3036;
+    background: #fbfcfb url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 10px center;
+    background-size: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+    min-width: 140px;
+}
+.filter-select:hover {
+    border-color: var(--green);
+    background-color: #fff;
+}
+.filter-select:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px var(--green-light);
+}
+.filter-select.has-value {
+    border-color: var(--green);
+    background-color: var(--green-pale);
+    color: var(--green-dark);
+}
+.filter-select.emergency-active {
+    border-color: #fca5a5;
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+.filter-btn-search {
+    padding: 9px 18px;
+    font-size: 0.88rem;
+    border-radius: 10px;
+    height: 40px;
+}
+.filter-reset-link {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: color 0.15s, background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+}
+.filter-reset-link:hover {
+    color: #b3261e;
+    background: #fee2e2;
+}
+.active-filters-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+.active-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+}
+.active-filter-badge.emergency {
+    background: #fee2e2;
+    color: #991b1b;
+}
+.active-filter-badge.important {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
 .list-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; }
 
 .notice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 22px; margin-top: 10px; }

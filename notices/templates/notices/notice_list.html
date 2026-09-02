@@ -13,27 +13,75 @@
         {% endif %}
     </div>
 
-    <div class="filter-bar" style="display:flex; flex-direction:column; gap:12px; margin: 20px 0 30px;">
-        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
-            <strong style="font-size:0.85rem; color:var(--muted); margin-right:4px;">Status:</strong>
-            <a href="?status=active{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="chip {% if status_filter == 'active' %}chip-active{% endif %}">Active Notices</a>
-            <a href="?status=expired{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="chip {% if status_filter == 'expired' %}chip-active{% endif %}">Expired</a>
-            <a href="?status=all{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="chip {% if status_filter == 'all' %}chip-active{% endif %}">All</a>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
-            <strong style="font-size:0.85rem; color:var(--muted); margin-right:4px;">Urgency:</strong>
-            <a href="?{% if status_filter != 'active' %}status={{ status_filter }}&{% endif %}{% if selected_category %}category={{ selected_category }}{% endif %}" class="chip {% if not selected_priority %}chip-active{% endif %}">All Urgencies</a>
-            <a href="?priority=emergency{% if status_filter != 'active' %}&status={{ status_filter }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="chip chip-emergency {% if selected_priority == 'emergency' %}chip-active{% endif %}">🚨 Emergency Alert</a>
-            <a href="?priority=important{% if status_filter != 'active' %}&status={{ status_filter }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="chip chip-important {% if selected_priority == 'important' %}chip-active{% endif %}">⚡ Important</a>
-            <a href="?priority=normal{% if status_filter != 'active' %}&status={{ status_filter }}{% endif %}{% if selected_category %}&category={{ selected_category }}{% endif %}" class="chip {% if selected_priority == 'normal' %}chip-active{% endif %}">Normal</a>
-        </div>
-        <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px;">
-            <strong style="font-size:0.85rem; color:var(--muted); margin-right:4px;">Category:</strong>
-            <a href="{% url 'notices:list' %}{% if status_filter != 'active' %}?status={{ status_filter }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="chip {% if not selected_category %}chip-active{% endif %}">All Categories</a>
-            {% for cat in categories %}
-                <a href="?category={{ cat.id }}{% if status_filter != 'active' %}&status={{ status_filter }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="chip {% if selected_category == cat.id %}chip-active{% endif %}">{{ cat.name }}</a>
-            {% endfor %}
-        </div>
+    <div class="filter-toolbar-card">
+        <form method="get" action="{% url 'notices:list' %}" class="filter-form">
+            <div class="filter-search-group">
+                <label class="filter-label">Search</label>
+                <div class="filter-search-wrapper">
+                    <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search notices by keyword..." class="filter-search-input">
+                </div>
+            </div>
+
+            <div class="filter-select-group">
+                <div class="filter-select-wrapper">
+                    <label class="filter-label">Category</label>
+                    <select name="category" onchange="this.form.submit()" class="filter-select {% if selected_category %}has-value{% endif %}">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-select-wrapper">
+                    <label class="filter-label">Urgency</label>
+                    <select name="priority" onchange="this.form.submit()" class="filter-select {% if selected_priority == 'emergency' %}emergency-active{% elif selected_priority %}has-value{% endif %}">
+                        <option value="">All Urgencies</option>
+                        <option value="emergency" {% if selected_priority == 'emergency' %}selected{% endif %}>🚨 Emergency Alert</option>
+                        <option value="important" {% if selected_priority == 'important' %}selected{% endif %}>⚡ Important</option>
+                        <option value="normal" {% if selected_priority == 'normal' %}selected{% endif %}>Normal</option>
+                    </select>
+                </div>
+
+                <div class="filter-select-wrapper">
+                    <label class="filter-label">Status</label>
+                    <select name="status" onchange="this.form.submit()" class="filter-select {% if status_filter != 'active' %}has-value{% endif %}">
+                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>🟢 Active Notices</option>
+                        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>⏳ Expired Notices</option>
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>📋 All Notices</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-small filter-btn-search">Search</button>
+
+                {% if search_query or selected_category or selected_priority or status_filter != 'active' %}
+                    <a href="{% url 'notices:list' %}" class="filter-reset-link">Clear filters ✕</a>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if search_query or selected_category or selected_priority or status_filter != 'active' %}
+            <div class="active-filters-strip">
+                <span>Active Filters:</span>
+                {% if status_filter != 'active' %}
+                    <span class="active-filter-badge">Status: {{ status_filter|title }} <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_priority %}priority={{ selected_priority }}&{% endif %}{% if search_query %}q={{ search_query }}{% endif %}" class="active-filter-remove">✕</a></span>
+                {% endif %}
+                {% if selected_priority %}
+                    <span class="active-filter-badge {% if selected_priority == 'emergency' %}emergency{% elif selected_priority == 'important' %}important{% endif %}">Urgency: {{ selected_priority|title }} <a href="?status={{ status_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="active-filter-remove">✕</a></span>
+                {% endif %}
+                {% if selected_category %}
+                    {% for cat in categories %}
+                        {% if selected_category == cat.id %}
+                            <span class="active-filter-badge">Category: {{ cat.name }} <a href="?status={{ status_filter }}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="active-filter-remove">✕</a></span>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if search_query %}
+                    <span class="active-filter-badge">Query: "{{ search_query }}" <a href="?status={{ status_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="active-filter-remove">✕</a></span>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 
     <div class="notice-grid">
