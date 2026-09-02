@@ -74,7 +74,7 @@ class CommentForm(forms.ModelForm):
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={"placeholder": "you@example.com"}))
-    first_name = forms.CharField(max_length=30, required=False, widget=forms.TextInput(attrs={"placeholder": "First name"}))
+    first_name = forms.CharField(max_length=30, required=True, widget=forms.TextInput(attrs={"placeholder": "First name"}))
 
     class Meta:
         model = User

@@ -589,6 +589,10 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
 .auth-form input, .auth-form select {
     height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 10px; font: inherit; background: var(--input-bg); color: var(--ink); width: 100%; transition: all 0.15s ease;
 }
+select option {
+    background-color: var(--card-bg);
+    color: var(--ink);
+}
 .notice-form textarea { height: auto; padding: 11px 14px; }
 .notice-form input:focus, .notice-form textarea:focus, .notice-form select:focus,
 .auth-form input:focus { outline: none; border-color: var(--green); background: var(--paper); box-shadow: 0 0 0 3px var(--green-light); }

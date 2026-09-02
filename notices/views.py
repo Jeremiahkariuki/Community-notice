@@ -23,6 +23,7 @@ from django.utils import timezone
 
 def home(request):
     """Landing page: hero, live preview of latest active notices, features & stats."""
+    ensure_default_categories()
     latest_notices = (
         Notice.objects.active()
         .select_related("category", "posted_by")
@@ -143,8 +144,25 @@ def comment_delete(request, pk, comment_pk):
     return redirect("notices:detail", pk=notice.pk)
 
 
+DEFAULT_CATEGORIES = [
+    "Announcements",
+    "Emergency & Safety",
+    "Events & Sports",
+    "Lost & Found",
+    "Services & Maintenance",
+    "General Discussion",
+]
+
+
+def ensure_default_categories():
+    if not Category.objects.exists():
+        for cat_name in DEFAULT_CATEGORIES:
+            Category.objects.get_or_create(name=cat_name)
+
+
 @login_required
 def notice_create(request):
+    ensure_default_categories()
     if request.method == "POST":
         form = NoticeForm(request.POST, request.FILES)
         if form.is_valid():

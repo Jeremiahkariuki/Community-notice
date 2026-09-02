@@ -34,7 +34,7 @@
         const staticHelps = formCard.querySelectorAll('.helptext, ul:not(.pwd-checklist)');
         staticHelps.forEach(el => el.remove());
 
-        // Create Dynamic Checklist Box
+        // Create Dynamic Password Strength & Checklist Box
         const checklistContainer = document.createElement('div');
         checklistContainer.className = 'pwd-strength-container';
         checklistContainer.innerHTML = `
@@ -64,16 +64,6 @@
         const pwd1Parent = pwd1.closest('.password-input-wrapper') || pwd1;
         pwd1Parent.parentNode.insertBefore(checklistContainer, pwd1Parent.nextSibling);
 
-        // Dedicated Match Indicator under Password Confirmation (pwd2)
-        let matchStatusEl = document.getElementById('pwdMatchStatus');
-        if (!matchStatusEl && pwd2) {
-            matchStatusEl = document.createElement('div');
-            matchStatusEl.id = 'pwdMatchStatus';
-            matchStatusEl.style.cssText = 'font-size:0.84rem; font-weight:600; margin-top:6px; display:none; align-items:center; gap:6px; transition:all 0.2s ease;';
-            const pwd2Parent = pwd2.closest('.password-input-wrapper') || pwd2;
-            pwd2Parent.parentNode.insertBefore(matchStatusEl, pwd2Parent.nextSibling);
-        }
-
         function updateChecklist() {
             // Re-clean any static helptext elements if Django re-rendered them
             const parentP = pwd1.closest('p') || pwd1.parentNode;
@@ -85,24 +75,6 @@
             const val = pwd1.value;
             const confirmVal = pwd2 ? pwd2.value : '';
             const unameVal = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
-
-            // Password Confirmation Match Feedback
-            if (pwd2 && matchStatusEl) {
-                if (confirmVal.length === 0) {
-                    matchStatusEl.style.display = 'none';
-                    pwd2.style.borderColor = '';
-                } else if (val === confirmVal && val.length > 0) {
-                    matchStatusEl.style.display = 'flex';
-                    matchStatusEl.style.color = '#22c55e';
-                    matchStatusEl.innerHTML = '✓ Passwords match';
-                    pwd2.style.borderColor = '#22c55e';
-                } else {
-                    matchStatusEl.style.display = 'flex';
-                    matchStatusEl.style.color = '#ef4444';
-                    matchStatusEl.innerHTML = '✕ Passwords do not match';
-                    pwd2.style.borderColor = '#ef4444';
-                }
-            }
 
             if (val.length === 0) {
                 setRuleVisible('ruleMinLength', false);
@@ -119,15 +91,15 @@
                 return;
             }
 
-            // Rule 1: Min 8 chars (Show remaining requirement if NOT met)
+            // Rule 1: Min 8 chars
             const isMinLength = val.length >= 8;
             setRuleVisible('ruleMinLength', !isMinLength);
 
-            // Rule 2: Not entirely numeric (Show remaining requirement if NOT met)
+            // Rule 2: Not entirely numeric
             const isNotNumeric = !/^\d+$/.test(val);
             setRuleVisible('ruleNotNumeric', !isNotNumeric);
 
-            // Rule 3: Not similar to username (Show remaining requirement if NOT met)
+            // Rule 3: Not similar to username
             const isNotSimilar = unameVal === '' || !val.toLowerCase().includes(unameVal);
             setRuleVisible('ruleNotSimilar', !isNotSimilar);
 
@@ -171,6 +143,98 @@
         pwd1.addEventListener('input', updateChecklist);
         if (pwd2) pwd2.addEventListener('input', updateChecklist);
         if (usernameInput) usernameInput.addEventListener('input', updateChecklist);
+
+        // ---------- Dynamic Real-time Field Errors for ALL Sections ----------
+        const fieldsToValidate = [
+            { id: 'id_username', name: 'Username', validate: val => val.trim().length > 0 ? null : '✕ Username is required.' },
+            { id: 'id_first_name', name: 'First name', validate: val => val.trim().length > 0 ? null : '✕ First name is required.' },
+            { id: 'id_email', name: 'Email address', validate: val => {
+                if (val.trim().length === 0) return '✕ Email address is required.';
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(val.trim())) return '✕ Please enter a valid email address (e.g. name@example.com).';
+                return null;
+            }},
+            { id: 'id_password1', name: 'Password', validate: val => val.length > 0 ? null : '✕ Password is required.' },
+            { id: 'id_password2', name: 'Password confirmation', validate: val => {
+                if (val.length === 0) return '✕ Please confirm your password.';
+                if (pwd1 && val !== pwd1.value) return '✕ Passwords do not match.';
+                return null;
+            }}
+        ];
+
+        fieldsToValidate.forEach(item => {
+            const input = document.getElementById(item.id);
+            if (!input) return;
+
+            input.setAttribute('required', 'required');
+
+            let errEl = input.parentNode.querySelector('.field-dynamic-error');
+            if (!errEl) {
+                errEl = document.createElement('div');
+                errEl.className = 'field-dynamic-error';
+                errEl.style.cssText = 'color:#ef4444; font-size:0.82rem; font-weight:600; margin-top:5px; display:none; align-items:center; gap:5px; transition:all 0.15s ease;';
+                const targetParent = input.closest('.password-input-wrapper') || input;
+                targetParent.parentNode.insertBefore(errEl, targetParent.nextSibling);
+            }
+
+            function validateField(showIfEmpty = false) {
+                const val = input.value;
+                if (!showIfEmpty && val.trim().length === 0 && !input.dataset.touched) {
+                    errEl.style.display = 'none';
+                    input.style.borderColor = '';
+                    return true;
+                }
+                input.dataset.touched = 'true';
+                const errMsg = item.validate(val);
+                if (errMsg) {
+                    errEl.textContent = errMsg;
+                    errEl.style.display = 'flex';
+                    errEl.style.color = '#ef4444';
+                    input.style.borderColor = '#ef4444';
+                    return false;
+                } else {
+                    if (item.id === 'id_password2' && pwd1 && val === pwd1.value && val.length > 0) {
+                        errEl.textContent = '✓ Passwords match';
+                        errEl.style.color = '#22c55e';
+                        errEl.style.display = 'flex';
+                    } else {
+                        errEl.style.display = 'none';
+                    }
+                    input.style.borderColor = '#22c55e';
+                    return true;
+                }
+            }
+
+            input.addEventListener('input', () => validateField(false));
+            input.addEventListener('blur', () => validateField(true));
+
+            input.checkDynamicValid = () => validateField(true);
+        });
+
+        // Form Submit Handler: Validate all sections before submission
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', function(e) {
+                let allValid = true;
+                let firstInvalidInput = null;
+
+                fieldsToValidate.forEach(item => {
+                    const input = document.getElementById(item.id);
+                    if (input && input.checkDynamicValid) {
+                        const isValid = input.checkDynamicValid();
+                        if (!isValid) {
+                            allValid = false;
+                            if (!firstInvalidInput) firstInvalidInput = input;
+                        }
+                    }
+                });
+
+                if (!allValid) {
+                    e.preventDefault();
+                    if (firstInvalidInput) firstInvalidInput.focus();
+                }
+            });
+        }
     });
 </script>
 {% endblock %}
