@@ -13,76 +13,76 @@
         {% endif %}
     </div>
 
-    <div class="filter-toolbar-card">
-        <form method="get" action="{% url 'notices:list' %}" class="filter-form">
-            <div class="filter-search-group">
-                <label class="filter-label">Search</label>
-                <div class="filter-search-wrapper">
-                    <svg class="search-icon-svg" width="17" height="17" style="width:17px; height:17px; min-width:17px; max-width:17px; min-height:17px; max-height:17px; flex-shrink:0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search notices by keyword..." class="filter-search-input">
+    <!-- ── Filter Bar ── -->
+    <div class="notice-filter-bar">
+        <form method="get" action="{% url 'notices:list' %}" id="filterForm">
+            {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+
+            <!-- Status Pills -->
+            <div class="filter-group">
+                <span class="filter-group-label">Status</span>
+                <div class="filter-pills">
+                    <button type="submit" name="status" value="active" class="filter-pill {% if status_filter == 'active' %}active{% endif %}">🟢 Active</button>
+                    <button type="submit" name="status" value="expired" class="filter-pill {% if status_filter == 'expired' %}active{% endif %}">⏳ Expired</button>
+                    <button type="submit" name="status" value="all" class="filter-pill {% if status_filter == 'all' %}active{% endif %}">📋 All</button>
                 </div>
             </div>
 
-            <div class="filter-select-group">
-                <div class="filter-select-wrapper">
-                    <label class="filter-label">Category</label>
-                    <select name="category" onchange="this.form.submit()" class="filter-select {% if selected_category %}has-value{% endif %}">
+            <div class="filter-divider"></div>
+
+            <!-- Urgency Dropdown -->
+            <div class="filter-group">
+                <span class="filter-group-label">Urgency</span>
+                <div class="filter-select-pill-wrap">
+                    <select name="priority" onchange="this.form.submit()" class="filter-pill-select {% if selected_priority == 'emergency' %}sel-emergency{% elif selected_priority == 'important' %}sel-important{% elif selected_priority %}sel-active{% endif %}">
+                        <option value="">All Urgencies</option>
+                        <option value="emergency" {% if selected_priority == 'emergency' %}selected{% endif %}>🚨 Emergency</option>
+                        <option value="important" {% if selected_priority == 'important' %}selected{% endif %}>⚡ Important</option>
+                        <option value="normal" {% if selected_priority == 'normal' %}selected{% endif %}>Normal</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-divider"></div>
+
+            <!-- Category Dropdown -->
+            <div class="filter-group">
+                <span class="filter-group-label">Category</span>
+                <div class="filter-select-pill-wrap">
+                    <select name="category" onchange="this.form.submit()" class="filter-pill-select {% if selected_category %}sel-active{% endif %}">
                         <option value="">All Categories</option>
                         {% for cat in categories %}
                             <option value="{{ cat.id }}" {% if selected_category == cat.id %}selected{% endif %}>{{ cat.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
-
-                <div class="filter-select-wrapper">
-                    <label class="filter-label">Urgency</label>
-                    <select name="priority" onchange="this.form.submit()" class="filter-select {% if selected_priority == 'emergency' %}emergency-active{% elif selected_priority %}has-value{% endif %}">
-                        <option value="">All Urgencies</option>
-                        <option value="emergency" {% if selected_priority == 'emergency' %}selected{% endif %}>🚨 Emergency Alert</option>
-                        <option value="important" {% if selected_priority == 'important' %}selected{% endif %}>⚡ Important</option>
-                        <option value="normal" {% if selected_priority == 'normal' %}selected{% endif %}>Normal</option>
-                    </select>
-                </div>
-
-                <div class="filter-select-wrapper">
-                    <label class="filter-label">Status</label>
-                    <select name="status" onchange="this.form.submit()" class="filter-select {% if status_filter != 'active' %}has-value{% endif %}">
-                        <option value="active" {% if status_filter == 'active' %}selected{% endif %}>🟢 Active Notices</option>
-                        <option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>⏳ Expired Notices</option>
-                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>📋 All Notices</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-small filter-btn-search">Search</button>
-
-                {% if search_query or selected_category or selected_priority or status_filter != 'active' %}
-                    <a href="{% url 'notices:list' %}" class="filter-reset-link">Clear filters ✕</a>
-                {% endif %}
             </div>
+
+            <!-- Hidden fields to preserve other filter state -->
+            <input type="hidden" name="status" value="{{ status_filter }}">
         </form>
 
         {% if search_query or selected_category or selected_priority or status_filter != 'active' %}
-            <div class="active-filters-strip">
-                <span>Active Filters:</span>
-                {% if status_filter != 'active' %}
-                    <span class="active-filter-badge">Status: {{ status_filter|title }} <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_priority %}priority={{ selected_priority }}&{% endif %}{% if search_query %}q={{ search_query }}{% endif %}" class="active-filter-remove">✕</a></span>
-                {% endif %}
-                {% if selected_priority %}
-                    <span class="active-filter-badge {% if selected_priority == 'emergency' %}emergency{% elif selected_priority == 'important' %}important{% endif %}">Urgency: {{ selected_priority|title }} <a href="?status={{ status_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="active-filter-remove">✕</a></span>
-                {% endif %}
-                {% if selected_category %}
-                    {% for cat in categories %}
-                        {% if selected_category == cat.id %}
-                            <span class="active-filter-badge">Category: {{ cat.name }} <a href="?status={{ status_filter }}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="active-filter-remove">✕</a></span>
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
-                {% if search_query %}
-                    <span class="active-filter-badge">Query: "{{ search_query }}" <a href="?status={{ status_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="active-filter-remove">✕</a></span>
-                {% endif %}
-            </div>
+            <a href="{% url 'notices:list' %}" class="filter-clear-btn">✕ Clear all</a>
         {% endif %}
     </div>
+
+    <!-- Active filter tags -->
+    {% if search_query or selected_category or selected_priority %}
+    <div class="active-tags-row">
+        {% if search_query %}
+            <span class="active-tag">🔍 "{{ search_query }}" <a href="?status={{ status_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}" class="tag-remove">✕</a></span>
+        {% endif %}
+        {% if selected_priority %}
+            <span class="active-tag {% if selected_priority == 'emergency' %}tag-emergency{% elif selected_priority == 'important' %}tag-important{% endif %}">{{ selected_priority|title }} <a href="?status={{ status_filter }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="tag-remove">✕</a></span>
+        {% endif %}
+        {% if selected_category %}
+            {% for cat in categories %}{% if selected_category == cat.id %}
+                <span class="active-tag">{{ cat.name }} <a href="?status={{ status_filter }}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if search_query %}&q={{ search_query }}{% endif %}" class="tag-remove">✕</a></span>
+            {% endif %}{% endfor %}
+        {% endif %}
+    </div>
+    {% endif %}
 
     <div class="notice-grid">
         {% for notice in page_obj %}
