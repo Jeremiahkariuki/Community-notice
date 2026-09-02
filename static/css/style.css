@@ -629,6 +629,13 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
 }
 
 /* ---------- Dynamic Password Requirements Checklist ---------- */
+#registerForm .helptext,
+#registerForm p ul,
+#id_password1 ~ .helptext,
+#id_password1 ~ ul {
+    display: none !important;
+}
+
 .pwd-strength-container {
     margin: 10px 0 16px;
 }
