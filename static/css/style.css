@@ -45,6 +45,144 @@ img { max-width: 100%; display: block; }
 .link-btn { background: none; border: none; color: var(--green-dark); cursor: pointer; font: inherit; font-weight: 600; padding: 0; }
 .inline-form { display: inline; }
 
+/* ---------- Global Search Button ---------- */
+.global-search-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    margin: 0 6px;
+}
+.global-search-btn:hover {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green-dark);
+    transform: scale(1.08);
+}
+
+/* ---------- Global Search Overlay ---------- */
+.search-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(10, 20, 12, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+}
+.search-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.search-overlay-inner {
+    position: relative;
+    background: #fff;
+    border-radius: 20px;
+    width: min(680px, 92vw);
+    padding: 28px 28px 22px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+    transform: translateY(-20px);
+    transition: transform 0.22s ease;
+}
+.search-overlay.active .search-overlay-inner {
+    transform: translateY(0);
+}
+.search-overlay-form { width: 100%; }
+.search-overlay-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 12px 16px;
+    background: #f9fafb;
+    transition: border-color 0.15s;
+}
+.search-overlay-input-wrap:focus-within {
+    border-color: var(--green);
+    background: #fff;
+    box-shadow: 0 0 0 4px var(--green-light);
+}
+.search-overlay-input-wrap input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    color: var(--ink);
+    outline: none;
+    font-family: inherit;
+}
+.search-overlay-input-wrap input::placeholder { color: #9ca3af; }
+.search-overlay-go {
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 18px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    font-family: inherit;
+}
+.search-overlay-go:hover { background: var(--green-dark); }
+.search-overlay-quick {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+.search-overlay-hint {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 600;
+}
+.search-quick-chip {
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    color: var(--ink);
+    background: #f9fafb;
+    transition: all 0.15s;
+}
+.search-quick-chip:hover { border-color: var(--green); background: var(--green-light); color: var(--green-dark); }
+.search-quick-chip.emergency { border-color: #fca5a5; background: #fee2e2; color: #991b1b; }
+.search-quick-chip.important { border-color: #fed7aa; background: #ffedd5; color: #c2410c; }
+.search-overlay-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s;
+    padding: 4px 8px;
+    border-radius: 8px;
+}
+.search-overlay-close:hover { color: #b3261e; background: #fee2e2; }
+
 .btn {
     background: var(--green); color: #fff; border: 2px solid var(--green); padding: 10px 20px;
     border-radius: 999px; cursor: pointer; font-weight: 700; text-decoration: none; display: inline-flex;
@@ -173,6 +311,7 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
 }
 .filter-form {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-end;
     gap: 14px;
