@@ -7,11 +7,123 @@
         </div>
         <h1 class="form-title">Join Our Community</h1>
         <p class="form-subtitle">Create a free account to post notices and stay connected.</p>
-        <form method="post" class="auth-form">
+        <form method="post" class="auth-form" id="registerForm">
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-block">Sign Up</button>
         </form>
         <p class="form-foot">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pwd1 = document.getElementById('id_password1');
+            const pwd2 = document.getElementById('id_password2');
+            const usernameInput = document.getElementById('id_username');
+            if (!pwd1) return;
+
+            // Hide default static Django helptext list
+            const oldHelpText = pwd1.closest('p') ? pwd1.closest('p').querySelector('.helptext') : null;
+            if (oldHelpText) oldHelpText.style.display = 'none';
+
+            // Create Dynamic Checklist Box
+            const checklistContainer = document.createElement('div');
+            checklistContainer.className = 'pwd-strength-container';
+            checklistContainer.innerHTML = `
+                <div class="pwd-strength-header">
+                    <span>Password strength</span>
+                    <span id="pwdStrengthLabel" style="color:var(--muted);">Too short</span>
+                </div>
+                <div class="pwd-strength-bar">
+                    <div class="pwd-strength-fill" id="pwdStrengthFill"></div>
+                </div>
+                <ul class="pwd-checklist">
+                    <li class="pwd-rule" id="ruleMinLength">
+                        <span class="pwd-rule-icon">&bull;</span>
+                        <span>At least 8 characters long</span>
+                    </li>
+                    <li class="pwd-rule" id="ruleNotNumeric">
+                        <span class="pwd-rule-icon">&bull;</span>
+                        <span>Contains letters or symbols (not only numbers)</span>
+                    </li>
+                    <li class="pwd-rule" id="ruleHasSpecial">
+                        <span class="pwd-rule-icon">&bull;</span>
+                        <span>Contains a number or special character</span>
+                    </li>
+                    <li class="pwd-rule" id="ruleMatch">
+                        <span class="pwd-rule-icon">&bull;</span>
+                        <span>Passwords match</span>
+                    </li>
+                </ul>
+            `;
+
+            const pwd1Parent = pwd1.closest('.password-input-wrapper') || pwd1;
+            pwd1Parent.parentNode.insertBefore(checklistContainer, pwd1Parent.nextSibling);
+
+            function updateChecklist() {
+                const val = pwd1.value;
+                const confirmVal = pwd2 ? pwd2.value : '';
+
+                const isMinLength = val.length >= 8;
+                setRuleStatus('ruleMinLength', isMinLength);
+
+                const isNotNumeric = val.length > 0 && !/^\d+$/.test(val);
+                setRuleStatus('ruleNotNumeric', isNotNumeric);
+
+                const hasSpecial = /[\d\W]/.test(val);
+                setRuleStatus('ruleHasSpecial', hasSpecial);
+
+                const isMatch = val.length > 0 && confirmVal.length > 0 && val === confirmVal;
+                setRuleStatus('ruleMatch', isMatch);
+
+                let score = 0;
+                if (val.length >= 8) score += 30;
+                if (val.length >= 12) score += 15;
+                if (isNotNumeric) score += 25;
+                if (hasSpecial) score += 30;
+
+                score = Math.min(100, val.length === 0 ? 0 : score);
+
+                const fill = document.getElementById('pwdStrengthFill');
+                const label = document.getElementById('pwdStrengthLabel');
+
+                if (fill && label) {
+                    fill.style.width = score + '%';
+                    if (score === 0) {
+                        fill.style.backgroundColor = 'transparent';
+                        label.textContent = 'Too short';
+                        label.style.color = 'var(--muted)';
+                    } else if (score < 50) {
+                        fill.style.backgroundColor = '#ef4444';
+                        label.textContent = 'Weak';
+                        label.style.color = '#ef4444';
+                    } else if (score < 80) {
+                        fill.style.backgroundColor = '#f59e0b';
+                        label.textContent = 'Medium';
+                        label.style.color = '#f59e0b';
+                    } else {
+                        fill.style.backgroundColor = '#22c55e';
+                        label.textContent = 'Strong ✓';
+                        label.style.color = '#22c55e';
+                    }
+                }
+            }
+
+            function setRuleStatus(id, isValid) {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const icon = el.querySelector('.pwd-rule-icon');
+                if (isValid) {
+                    el.classList.add('valid');
+                    if (icon) icon.textContent = '✓';
+                } else {
+                    el.classList.remove('valid');
+                    if (icon) icon.textContent = '•';
+                }
+            }
+
+            pwd1.addEventListener('input', updateChecklist);
+            if (pwd2) pwd2.addEventListener('input', updateChecklist);
+        });
+    </script>
 {% endblock %}

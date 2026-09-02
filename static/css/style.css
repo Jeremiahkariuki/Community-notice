@@ -628,6 +628,72 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
     background-color: var(--green-light);
 }
 
+/* ---------- Dynamic Password Requirements Checklist ---------- */
+.pwd-strength-container {
+    margin: 10px 0 16px;
+}
+.pwd-strength-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--muted);
+}
+.pwd-strength-bar {
+    width: 100%;
+    height: 5px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.pwd-strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 999px;
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+.pwd-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.pwd-rule {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    transition: all 0.2s ease;
+}
+.pwd-rule-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    background: var(--paper);
+}
+.pwd-rule.valid {
+    color: var(--green);
+    font-weight: 600;
+}
+.pwd-rule.valid .pwd-rule-icon {
+    background: var(--green);
+    border-color: var(--green);
+    color: #ffffff;
+}
+
 .site-footer { background: var(--footer-bg); color: #cfe4d6; padding: 46px 0 24px; margin-top: 40px; transition: background-color 0.25s ease; }
 .footer-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 32px; margin-bottom: 30px; }
 .footer-brand { display: flex; align-items: center; gap: 10px; color: #fff; font-weight: 800; margin-bottom: 10px; }
