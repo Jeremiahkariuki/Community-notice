@@ -1,0 +1,5 @@
+# GitHub Linguist Overrides
+# Override language statistics so GitHub detects Python as the primary repository language
+
+notices/templates/** linguist-detectable=false
+static/** linguist-detectable=false
