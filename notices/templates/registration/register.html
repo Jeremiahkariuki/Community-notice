@@ -30,11 +30,9 @@
         if (!pwd1) return;
 
         // Completely remove default static Django helptext list elements
-        const parentP = pwd1.closest('p') || pwd1.parentNode;
-        if (parentP) {
-            const staticHelp = parentP.querySelectorAll('.helptext, ul');
-            staticHelp.forEach(el => el.remove());
-        }
+        const formCard = pwd1.closest('.form-card') || document;
+        const staticHelps = formCard.querySelectorAll('.helptext, ul:not(.pwd-checklist)');
+        staticHelps.forEach(el => el.remove());
 
         // Create Dynamic Checklist Box
         const checklistContainer = document.createElement('div');
@@ -47,22 +45,18 @@
             <div class="pwd-strength-bar">
                 <div class="pwd-strength-fill" id="pwdStrengthFill"></div>
             </div>
-            <ul class="pwd-checklist">
-                <li class="pwd-rule" id="ruleMinLength">
-                    <span class="pwd-rule-icon">&bull;</span>
+            <ul class="pwd-checklist" id="pwdChecklist" style="margin-top: 10px;">
+                <li class="pwd-rule" id="ruleMinLength" style="display:none; color:#ef4444;">
+                    <span class="pwd-rule-icon" style="color:#ef4444; border-color:#fca5a5;">&bull;</span>
                     <span>Your password must contain at least 8 characters.</span>
                 </li>
-                <li class="pwd-rule" id="ruleNotNumeric">
-                    <span class="pwd-rule-icon">&bull;</span>
+                <li class="pwd-rule" id="ruleNotNumeric" style="display:none; color:#ef4444;">
+                    <span class="pwd-rule-icon" style="color:#ef4444; border-color:#fca5a5;">&bull;</span>
                     <span>Your password can't be entirely numeric.</span>
                 </li>
-                <li class="pwd-rule" id="ruleNotSimilar">
-                    <span class="pwd-rule-icon">&bull;</span>
+                <li class="pwd-rule" id="ruleNotSimilar" style="display:none; color:#ef4444;">
+                    <span class="pwd-rule-icon" style="color:#ef4444; border-color:#fca5a5;">&bull;</span>
                     <span>Your password can't be too similar to your username.</span>
-                </li>
-                <li class="pwd-rule" id="ruleMatch">
-                    <span class="pwd-rule-icon">&bull;</span>
-                    <span>Passwords match.</span>
                 </li>
             </ul>
         `;
@@ -70,47 +64,89 @@
         const pwd1Parent = pwd1.closest('.password-input-wrapper') || pwd1;
         pwd1Parent.parentNode.insertBefore(checklistContainer, pwd1Parent.nextSibling);
 
+        // Dedicated Match Indicator under Password Confirmation (pwd2)
+        let matchStatusEl = document.getElementById('pwdMatchStatus');
+        if (!matchStatusEl && pwd2) {
+            matchStatusEl = document.createElement('div');
+            matchStatusEl.id = 'pwdMatchStatus';
+            matchStatusEl.style.cssText = 'font-size:0.84rem; font-weight:600; margin-top:6px; display:none; align-items:center; gap:6px; transition:all 0.2s ease;';
+            const pwd2Parent = pwd2.closest('.password-input-wrapper') || pwd2;
+            pwd2Parent.parentNode.insertBefore(matchStatusEl, pwd2Parent.nextSibling);
+        }
+
         function updateChecklist() {
+            // Re-clean any static helptext elements if Django re-rendered them
+            const parentP = pwd1.closest('p') || pwd1.parentNode;
+            if (parentP) {
+                const staticHelp = parentP.querySelectorAll('.helptext, ul:not(.pwd-checklist)');
+                staticHelp.forEach(el => el.remove());
+            }
+
             const val = pwd1.value;
             const confirmVal = pwd2 ? pwd2.value : '';
             const unameVal = usernameInput ? usernameInput.value.trim().toLowerCase() : '';
 
-            // Rule 1: Min 8 chars
+            // Password Confirmation Match Feedback
+            if (pwd2 && matchStatusEl) {
+                if (confirmVal.length === 0) {
+                    matchStatusEl.style.display = 'none';
+                    pwd2.style.borderColor = '';
+                } else if (val === confirmVal && val.length > 0) {
+                    matchStatusEl.style.display = 'flex';
+                    matchStatusEl.style.color = '#22c55e';
+                    matchStatusEl.innerHTML = '✓ Passwords match';
+                    pwd2.style.borderColor = '#22c55e';
+                } else {
+                    matchStatusEl.style.display = 'flex';
+                    matchStatusEl.style.color = '#ef4444';
+                    matchStatusEl.innerHTML = '✕ Passwords do not match';
+                    pwd2.style.borderColor = '#ef4444';
+                }
+            }
+
+            if (val.length === 0) {
+                setRuleVisible('ruleMinLength', false);
+                setRuleVisible('ruleNotNumeric', false);
+                setRuleVisible('ruleNotSimilar', false);
+
+                const fill = document.getElementById('pwdStrengthFill');
+                const label = document.getElementById('pwdStrengthLabel');
+                if (fill && label) {
+                    fill.style.width = '0%';
+                    label.textContent = 'Too short';
+                    label.style.color = 'var(--muted)';
+                }
+                return;
+            }
+
+            // Rule 1: Min 8 chars (Show remaining requirement if NOT met)
             const isMinLength = val.length >= 8;
-            setRuleStatus('ruleMinLength', isMinLength);
+            setRuleVisible('ruleMinLength', !isMinLength);
 
-            // Rule 2: Not entirely numeric
-            const isNotNumeric = val.length > 0 && !/^\d+$/.test(val);
-            setRuleStatus('ruleNotNumeric', isNotNumeric);
+            // Rule 2: Not entirely numeric (Show remaining requirement if NOT met)
+            const isNotNumeric = !/^\d+$/.test(val);
+            setRuleVisible('ruleNotNumeric', !isNotNumeric);
 
-            // Rule 3: Not similar to username
-            const isNotSimilar = val.length > 0 && (unameVal === '' || !val.toLowerCase().includes(unameVal));
-            setRuleStatus('ruleNotSimilar', isNotSimilar);
-
-            // Rule 4: Passwords match
-            const isMatch = val.length > 0 && confirmVal.length > 0 && val === confirmVal;
-            setRuleStatus('ruleMatch', isMatch);
+            // Rule 3: Not similar to username (Show remaining requirement if NOT met)
+            const isNotSimilar = unameVal === '' || !val.toLowerCase().includes(unameVal);
+            setRuleVisible('ruleNotSimilar', !isNotSimilar);
 
             // Calculate strength score
             let score = 0;
-            if (isMinLength) score += 30;
+            if (isMinLength) score += 35;
             if (val.length >= 12) score += 15;
             if (isNotNumeric) score += 25;
-            if (isNotSimilar && val.length > 0) score += 15;
-            if (/[\W]/.test(val)) score += 15;
+            if (isNotSimilar) score += 15;
+            if (/[\W]/.test(val)) score += 10;
 
-            score = Math.min(100, val.length === 0 ? 0 : score);
+            score = Math.min(100, score);
 
             const fill = document.getElementById('pwdStrengthFill');
             const label = document.getElementById('pwdStrengthLabel');
 
             if (fill && label) {
                 fill.style.width = score + '%';
-                if (score === 0) {
-                    fill.style.backgroundColor = 'transparent';
-                    label.textContent = 'Too short';
-                    label.style.color = 'var(--muted)';
-                } else if (score < 50) {
+                if (score < 40) {
                     fill.style.backgroundColor = '#ef4444';
                     label.textContent = 'Weak';
                     label.style.color = '#ef4444';
@@ -126,17 +162,10 @@
             }
         }
 
-        function setRuleStatus(id, isValid) {
+        function setRuleVisible(id, show) {
             const el = document.getElementById(id);
             if (!el) return;
-            const icon = el.querySelector('.pwd-rule-icon');
-            if (isValid) {
-                el.classList.add('valid');
-                if (icon) icon.textContent = '✓';
-            } else {
-                el.classList.remove('valid');
-                if (icon) icon.textContent = '•';
-            }
+            el.style.display = show ? 'flex' : 'none';
         }
 
         pwd1.addEventListener('input', updateChecklist);
