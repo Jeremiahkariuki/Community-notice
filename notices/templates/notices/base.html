@@ -120,6 +120,47 @@
     </div>
 
     <script>
+        // Universal Password Eye Toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInputs = document.querySelectorAll('input[type="password"]');
+            passwordInputs.forEach(function(input) {
+                if (input.dataset.eyeInjected) return;
+                input.dataset.eyeInjected = "true";
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'password-input-wrapper';
+                input.parentNode.insertBefore(wrapper, input);
+                wrapper.appendChild(input);
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'password-eye-toggle';
+                toggleBtn.title = 'Show or hide password';
+                toggleBtn.setAttribute('aria-label', 'Toggle password visibility');
+                toggleBtn.innerHTML = `
+                    <svg class="eye-icon eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg class="eye-icon eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                `;
+
+                wrapper.appendChild(toggleBtn);
+
+                toggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const isPass = input.type === 'password';
+                    input.type = isPass ? 'text' : 'password';
+                    const openSvg = toggleBtn.querySelector('.eye-open');
+                    const closedSvg = toggleBtn.querySelector('.eye-closed');
+                    if (isPass) {
+                        openSvg.style.display = 'none';
+                        closedSvg.style.display = 'block';
+                    } else {
+                        openSvg.style.display = 'block';
+                        closedSvg.style.display = 'none';
+                    }
+                });
+            });
+        });
+
         const themeBtn = document.getElementById('themeToggleBtn');
         function toggleTheme() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
