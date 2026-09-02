@@ -167,65 +167,73 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
     background: #ffffff;
     border: 1px solid var(--line);
     border-radius: 16px;
-    padding: 16px 20px;
+    padding: 18px 22px;
     margin: 20px 0 32px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
 }
 .filter-form {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-end;
-    gap: 12px;
+    gap: 14px;
 }
 .filter-search-group {
     flex: 1 1 240px;
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 .filter-search-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 .filter-search-input {
     width: 100%;
-    padding: 10px 14px 10px 38px;
+    height: 42px;
+    padding: 0 14px 0 38px;
     border: 1px solid var(--line);
     border-radius: 10px;
     font-size: 0.9rem;
-    background: #fbfcfb;
+    background: #fcfdfe;
     color: var(--ink);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: all 0.15s ease;
 }
 .filter-search-input:focus {
     outline: none;
     border-color: var(--green);
-    background: #fff;
+    background: #ffffff;
     box-shadow: 0 0 0 3px var(--green-light);
 }
 .search-icon-svg {
     position: absolute;
     left: 12px;
-    width: 17px;
-    height: 17px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 17px !important;
+    height: 17px !important;
+    max-width: 17px !important;
+    max-height: 17px !important;
+    min-width: 17px !important;
+    min-height: 17px !important;
+    flex-shrink: 0;
     color: var(--muted);
     pointer-events: none;
 }
 .filter-select-group {
     display: flex;
     align-items: flex-end;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 .filter-select-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 .filter-label {
-    font-size: 0.72rem;
+    font-size: 0.73rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -233,23 +241,28 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
     margin-left: 2px;
 }
 .filter-select {
-    padding: 9px 34px 9px 12px;
+    height: 42px;
+    padding: 0 34px 0 14px;
     border: 1px solid var(--line);
     border-radius: 10px;
     font-size: 0.88rem;
     font-weight: 600;
     color: #2c3036;
-    background: #fbfcfb url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>") no-repeat right 10px center;
-    background-size: 14px;
+    background-color: #fcfdfe;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236b7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px top 50%;
+    background-size: 10px auto;
     appearance: none;
     -webkit-appearance: none;
+    -moz-appearance: none;
     cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s;
-    min-width: 140px;
+    transition: all 0.15s ease;
+    min-width: 150px;
 }
 .filter-select:hover {
     border-color: var(--green);
-    background-color: #fff;
+    background-color: #ffffff;
 }
 .filter-select:focus {
     outline: none;
@@ -267,22 +280,25 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
     color: #991b1b;
 }
 .filter-btn-search {
-    padding: 9px 18px;
+    height: 42px;
+    padding: 0 20px;
     font-size: 0.88rem;
     border-radius: 10px;
-    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .filter-reset-link {
+    height: 42px;
     font-size: 0.85rem;
     color: var(--muted);
     text-decoration: none;
     font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: color 0.15s, background 0.15s;
+    padding: 0 14px;
+    border-radius: 10px;
+    transition: all 0.15s ease;
     display: inline-flex;
     align-items: center;
-    height: 40px;
 }
 .filter-reset-link:hover {
     color: #b3261e;
@@ -306,7 +322,7 @@ h1.page-title { font-size: 1.9rem; margin-bottom: 4px; }
     background: var(--green-light);
     color: var(--green-dark);
     font-weight: 600;
-    padding: 3px 10px;
+    padding: 4px 12px;
     border-radius: 999px;
     font-size: 0.78rem;
 }
